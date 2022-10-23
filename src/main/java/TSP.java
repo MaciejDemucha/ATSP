@@ -4,8 +4,18 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class TSP {
-     int cities;
-     int[][] distance;
+
+    public TSP() {
+
+
+        hamiltonCycle = Integer.MAX_VALUE;
+    }
+
+    boolean[] visitCity;
+    int cities;
+    int[][] distance;
+
+    int hamiltonCycle;
 
     public int getCities() {
         return cities;
@@ -60,6 +70,13 @@ public class TSP {
                     tsp.setDistance(i, j, Integer.MAX_VALUE);
             }
         }
+
+        // create an array of type boolean to check if a node has been visited or not
+        tsp.visitCity = new boolean[tsp.getCities()];
+
+        // by default, we make the first city visited
+        tsp.visitCity[0] = true;
+
         return tsp;
     }
 
@@ -71,6 +88,34 @@ public class TSP {
         } catch(IOException e){
             throw new Exception("Wystąpił błąd podczas odczytu danych z pliku.");
         }
+    }
+
+    public void printSolution(){
+        hamiltonCycle = findHamiltonianCycle(distance, visitCity, 0, cities, 1, 0, hamiltonCycle);
+        System.out.println(hamiltonCycle);
+    }
+
+    // create findHamiltonianCycle() method to get minimum weighted cycle
+    static int findHamiltonianCycle(int[][] distance, boolean[] visitCity, int currPos, int cities, int count, int cost, int hamiltonianCycle) {
+
+        if (count == cities && distance[currPos][0] > 0) {
+            hamiltonianCycle = Math.min(hamiltonianCycle, cost + distance[currPos][0]);
+            return hamiltonianCycle;
+        }
+
+        // BACKTRACKING STEP
+        for (int i = 0; i < cities; i++) {
+            if (visitCity[i] == false && distance[currPos][i] > 0) {
+
+                // Mark as visited
+                visitCity[i] = true;
+                hamiltonianCycle = findHamiltonianCycle(distance, visitCity, i, cities, count + 1, cost + distance[currPos][i], hamiltonianCycle);
+
+                // Mark ith node as unvisited
+                visitCity[i] = false;
+            }
+        }
+        return hamiltonianCycle;
     }
 
 }
