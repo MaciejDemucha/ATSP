@@ -6,8 +6,6 @@ import java.io.IOException;
 public class TSP {
 
     public TSP() {
-
-
         hamiltonCycle = Integer.MAX_VALUE;
     }
 
@@ -90,8 +88,9 @@ public class TSP {
         }
     }
 
-    public void printSolution(){
+    public void solution(boolean print){
         hamiltonCycle = findHamiltonianCycle(distance, visitCity, 0, cities, 1, 0, hamiltonCycle);
+        if(print)
         System.out.println(hamiltonCycle);
     }
 
