@@ -1,7 +1,5 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.util.Scanner;
 
 public class TSP {
 
@@ -14,6 +12,8 @@ public class TSP {
     int[][] distance;
 
     int hamiltonCycle;
+
+    int[] route;
 
     public int getCities() {
         return cities;
@@ -44,6 +44,7 @@ public class TSP {
     }
 
     public void printDistances(){
+        System.out.println(this.getCities());
         for( int i = 0; i < this.getCities(); i++){
             for( int j = 0; j < this.getCities(); j++)
                 System.out.print(this.getDistance(i, j) + " ");
@@ -63,9 +64,10 @@ public class TSP {
             line = reader.readLine();
             txt = line.split(" ");
             for( int j = 0; j < tsp.getCities(); j++){
+                //int distance = Integer.parseInt(txt[j]);
                 tsp.setDistance(i, j, Integer.parseInt(txt[j]));
-                if(tsp.getDistance(i, j) == 0)
-                    tsp.setDistance(i, j, Integer.MAX_VALUE);
+                //if(tsp.getDistance(i, j) == 0)
+                    //tsp.setDistance(i, j, Integer.MAX_VALUE);
             }
         }
 
@@ -88,6 +90,38 @@ public class TSP {
         }
     }
 
+    public static TSP readFromFileScanner(String filePath) throws FileNotFoundException {
+        TSP tsp = new TSP();
+        try{
+            File file = new File(filePath);
+            Scanner scanner = new Scanner(file);
+
+            tsp.setCities(scanner.nextInt());
+            tsp.setDistance(tsp.getCities(), tsp.getCities());
+
+            while (scanner.hasNext()) {
+                for( int i = 0; i < tsp.getCities(); i++){
+                    scanner.nextLine();
+                    for( int j = 0; j < tsp.getCities(); j++){
+                        if (scanner.hasNextInt())
+                            tsp.setDistance(i, j, scanner.nextInt());
+                        else
+                            scanner.next();
+                    }
+                }
+            }
+            // create an array of type boolean to check if a node has been visited or not
+            tsp.visitCity = new boolean[tsp.getCities()];
+
+            // by default, we make the first city visited
+            tsp.visitCity[0] = true;
+        }
+        catch (FileNotFoundException e){
+            throw new FileNotFoundException("Nie odnaleziono pliku " + filePath);
+        }
+        return tsp;
+    }
+
     public void solution(boolean print){
         hamiltonCycle = findHamiltonianCycle(distance, visitCity, 0, cities, 1, 0, hamiltonCycle);
         if(print)
@@ -108,12 +142,15 @@ public class TSP {
 
                 // Mark as visited
                 visitCity[i] = true;
+
                 hamiltonianCycle = findHamiltonianCycle(distance, visitCity, i, cities, count + 1, cost + distance[currPos][i], hamiltonianCycle);
 
                 // Mark ith node as unvisited
                 visitCity[i] = false;
             }
         }
+        //System.out.print(currPos + 1 + ", ");
+        //System.out.println();
         return hamiltonianCycle;
     }
 

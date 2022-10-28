@@ -1,13 +1,13 @@
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        TSP tsp = TSP.readFromFile("test.txt");
+        TSP tsp = TSP.readFromFileScanner("test2.txt");
         tsp.printDistances();
+        tsp.solution(true);
 
         long start = System.nanoTime();
 
         for(int i = 0; i < 100; i++){
-            tsp = TSP.readFromFile("test.txt");
             tsp.solution(false);
         }
 
