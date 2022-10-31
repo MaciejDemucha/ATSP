@@ -96,8 +96,15 @@ public class TSP {
             File file = new File(filePath);
             Scanner scanner = new Scanner(file);
 
-            tsp.setCities(scanner.nextInt());
-            tsp.setDistance(tsp.getCities(), tsp.getCities());
+            while (scanner.hasNext()){
+                if (scanner.hasNextInt()) {
+                    tsp.setCities(scanner.nextInt());
+                    tsp.setDistance(tsp.getCities(), tsp.getCities());
+                    break;
+                }
+                else
+                    scanner.next();
+            }
 
             while (scanner.hasNext()) {
                 for( int i = 0; i < tsp.getCities(); i++){

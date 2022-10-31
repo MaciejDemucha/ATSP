@@ -1,7 +1,7 @@
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        TSP tsp = TSP.readFromFileScanner("test2.txt");
+        TSP tsp = TSP.readFromFileScanner("test3.txt");
         tsp.printDistances();
         tsp.solution(true);
 
