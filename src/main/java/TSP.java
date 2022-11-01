@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class TSP {
@@ -180,23 +181,23 @@ public class TSP {
 
     // Function to find the minimum edge cost
     // having an end at the vertex i
-    int firstMin(int from, int i)
+    int firstMin(int from, int i, int[][] arr)
     {
         int min = Integer.MAX_VALUE;
         for (int k = from; k < getCities(); k++)
-            if (getDistance(i, k) < min && i != k)
-                min = getDistance(i, k);
+            if (arr[i][k] < min && i != k)
+                min = arr[i][k];
         return min;
     }
 
     // Function to find the minimum edge cost
     // having an end at the vertex i
-    int firstMin2(int from, int i)
+    int firstMin2(int from, int i, int[][] arr)
     {
         int min = Integer.MAX_VALUE;
         for (int k = from; k < getCities(); k++)
-            if (getDistance(k, i) < min && i != k)
-                min = getDistance(k, i);
+            if (arr[k][i] < min && i != k)
+                min = arr[k][i];
         return min;
     }
 
@@ -225,7 +226,7 @@ public class TSP {
     void reduceMatrix(int[][] arr){
         sumReduction = 0;
         for(int i = 0; i < getCities(); i++){
-            int localMin = firstMin(0, i);
+            int localMin = firstMin(0, i, arr);
             sumReduction += localMin;
             for(int j= 0; j < getCities(); j++) {
                 arr[i][j] -= localMin;
@@ -233,7 +234,7 @@ public class TSP {
         }
 
         for(int i = 0; i < getCities(); i++){
-            int localMin = firstMin2(0, i);
+            int localMin = firstMin2(0, i, arr);
             sumReduction += localMin;
             for(int j= 0; j < getCities(); j++) {
                 arr[j][i] -= localMin;
@@ -241,13 +242,51 @@ public class TSP {
         }
     }
 
-    void expandNode(int i){
+    void expandNodes(){
         int firstSum = 0;
-        int[][] tempArr = distance.clone();
-        int[][] arrAfterFirstIt = new int[getCities()][getCities()];
-        for (int k = 0; k < getCities(); k++){
+        bounds = new int[getCities() - 1];
 
-            if(k > 0) tempArr = arrAfterFirstIt;
+        int[][] tempArr = new int[getCities()][getCities()];
+
+        for( int i = 0; i < this.getCities(); i++)
+            for( int j = 0; j < this.getCities(); j++)
+                tempArr[i][j] = getDistance(i,j);
+
+       /* for( int i = 0; i < this.getCities(); i++){
+            for( int j = 0; j < this.getCities(); j++)
+                System.out.print(tempArr[i][j] + ", ");
+            System.out.print("\n");
+        }
+        System.out.println();*/
+
+        reduceMatrix(tempArr);
+        firstSum = sumReduction;
+        int[][] arrAfterFirstReduction = new int[getCities()][getCities()];
+
+        for( int i = 0; i < this.getCities(); i++)
+            for( int j = 0; j < this.getCities(); j++)
+                arrAfterFirstReduction[i][j] = tempArr[i][j];
+
+        /*for( int i = 0; i < this.getCities(); i++){
+            for( int j = 0; j < this.getCities(); j++)
+                System.out.print(arrAfterFirstReduction[i][j] + ", ");
+            System.out.print("\n");
+        }
+        System.out.println();*/
+
+        for (int k = 1; k < getCities(); k++){
+
+            for( int i = 0; i < this.getCities(); i++)
+                for( int j = 0; j < this.getCities(); j++)
+                    tempArr[i][j] = arrAfterFirstReduction[i][j];
+
+            /*for( int i = 0; i < this.getCities(); i++){
+                for( int j = 0; j < this.getCities(); j++)
+                    System.out.print(tempArr[i][j] + ", ");
+                System.out.print("\n");
+            }
+            System.out.println();*/
+            int edge = tempArr[0][k];
 
         for (int j= 0; j< getCities(); j++)
         tempArr[0][j] = Integer.MAX_VALUE;
@@ -255,34 +294,33 @@ public class TSP {
         for (int j= 0; j< getCities(); j++)
             tempArr[j][k] = Integer.MAX_VALUE;
 
-            tempArr[k+1][0] = Integer.MAX_VALUE;
+            tempArr[k][0] = Integer.MAX_VALUE;
+
+
+            /*for( int i = 0; i < this.getCities(); i++){
+            for( int j = 0; j < this.getCities(); j++)
+                System.out.print(tempArr[i][j] + ", ");
+        System.out.print("\n");
+        }
+            System.out.println();*/
 
             reduceMatrix(tempArr);
 
-            if(k == 0){
-                firstSum = sumReduction;
-                arrAfterFirstIt = tempArr;
-            }
-
-        bounds[k] = sumReduction + getDistance(0, k) + firstSum;
-
+        bounds[k-1] = sumReduction + edge + firstSum;
+            System.out.println(sumReduction + " + " + edge + " + " + firstSum + " = " + bounds[k-1]);
         }
-    }
-
-    void branch(){
-
     }
 
 
     int boundFun(int from, int i) throws Exception {
         if(from >= i) throw new Exception("Wrong parameters for bound");
-        return (firstMin(from, i) + firstMin2(from, i))/2;
+        return (firstMin(from, i, distance) + firstMin2(from, i, distance))/2;
     }
     
     int bound2(int from, int i){
         int bound = 0;
         for(int j = 0; j <= i; j++)
-        bound += firstMin(from, j);
+        bound += firstMin(from, j, distance);
 
         return bound;
     }

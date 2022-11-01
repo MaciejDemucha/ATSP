@@ -1,10 +1,11 @@
+import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         TSP tsp = TSP.readFromFileScanner("test5.txt");
-        //tsp.reduceMatrix(tsp.distance);
-        tsp.printDistances();
-        System.out.println(tsp.sumReduction);
+        //tsp.printDistances();
+        tsp.expandNodes();
+        //System.out.println(Arrays.toString(tsp.bounds));
         tsp.bruteForce(true);
 
         long start = System.nanoTime();
