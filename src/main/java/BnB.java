@@ -3,7 +3,7 @@ import java.util.Arrays;
 public class BnB
 {
 
-    static int N = 4;
+    static int N = 5;
 
     // final_path[] stores the final solution ie, the
     // path of the salesman.
@@ -177,10 +177,14 @@ public class BnB
     public static void main(String[] args)
     {
         //Adjacency matrix for the given graph
-        int adj[][] = {{0, 10, 15, 20},
-                {10, 0, 35, 25},
-                {15, 35, 0, 30},
-                {20, 25, 30, 0}    };
+        int adj[][] = {{0, 14, 4, 10, 20},
+                {14, 0, 7, 8, 7},
+                { 4, 5, 0, 7, 16},
+                {11, 7, 9, 0, 2} ,
+                {18, 7, 17, 4, 0}};
+
+        int len = adj[0].length;
+        N = len;
 
         TSP(adj);
 
@@ -188,7 +192,7 @@ public class BnB
         System.out.printf("Path Taken : ");
         for (int i = 0; i <= N; i++)
         {
-            System.out.printf("%d ", final_path[i]);
+            System.out.printf("%d ", final_path[i] + 1);
         }
     }
 }

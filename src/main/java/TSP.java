@@ -13,7 +13,12 @@ public class TSP {
 
     int hamiltonCycle;
 
-    int[] route;
+    int sumReduction;
+    int[] bounds;
+
+    int[] final_path;
+    // Stores the final minimum weight of shortest tour.
+    static int final_res = Integer.MAX_VALUE;
 
     public int getCities() {
         return cities;
@@ -31,11 +36,11 @@ public class TSP {
         return distance[x][y];
     }
 
-    public void setDistance(int[][] distance) {
+    public void setMatrix(int[][] distance) {
         this.distance = distance;
     }
 
-    public void setDistance(int x, int y) {
+    public void setMatrix(int x, int y) {
         this.distance = new int[x][y];
     }
 
@@ -59,7 +64,7 @@ public class TSP {
         String[] txt = line.split(" ");
         tsp.setCities(Integer.parseInt(txt[0]));
 
-        tsp.setDistance(tsp.getCities(), tsp.getCities());
+        tsp.setMatrix(tsp.getCities(), tsp.getCities());
         for( int i = 0; i < tsp.getCities(); i++){
             line = reader.readLine();
             txt = line.split(" ");
@@ -99,7 +104,7 @@ public class TSP {
             while (scanner.hasNext()){
                 if (scanner.hasNextInt()) {
                     tsp.setCities(scanner.nextInt());
-                    tsp.setDistance(tsp.getCities(), tsp.getCities());
+                    tsp.setMatrix(tsp.getCities(), tsp.getCities());
                     break;
                 }
                 else
@@ -129,7 +134,7 @@ public class TSP {
         return tsp;
     }
 
-    public void solution(boolean print){
+    public void bruteForce(boolean print){
         hamiltonCycle = findHamiltonianCycle(distance, visitCity, 0, cities, 1, 0, hamiltonCycle);
         if(print)
         System.out.println(hamiltonCycle);
@@ -149,6 +154,8 @@ public class TSP {
 
                 // Mark as visited
                 visitCity[i] = true;
+                //System.out.print(currPos + 1 + ", ");
+
 
                 hamiltonianCycle = findHamiltonianCycle(distance, visitCity, i, cities, count + 1, cost + distance[currPos][i], hamiltonianCycle);
 
@@ -156,9 +163,128 @@ public class TSP {
                 visitCity[i] = false;
             }
         }
-        //System.out.print(currPos + 1 + ", ");
-        //System.out.println();
+        //System.out.println(hamiltonianCycle);
         return hamiltonianCycle;
+    }
+
+    //Branch and Bound
+
+    // Function to copy temporary solution to
+    // the final solution
+    void copyToFinal(int curr_path[])
+    {
+        for (int i = 0; i < this.getCities(); i++)
+            final_path[i] = curr_path[i];
+        final_path[this.getCities()] = curr_path[0];
+    }
+
+    // Function to find the minimum edge cost
+    // having an end at the vertex i
+    int firstMin(int from, int i)
+    {
+        int min = Integer.MAX_VALUE;
+        for (int k = from; k < getCities(); k++)
+            if (getDistance(i, k) < min && i != k)
+                min = getDistance(i, k);
+        return min;
+    }
+
+    // Function to find the minimum edge cost
+    // having an end at the vertex i
+    int firstMin2(int from, int i)
+    {
+        int min = Integer.MAX_VALUE;
+        for (int k = from; k < getCities(); k++)
+            if (getDistance(k, i) < min && i != k)
+                min = getDistance(k, i);
+        return min;
+    }
+
+    // function to find the second minimum edge cost
+    // having an end at the vertex i
+    int secondMin(int i)
+    {
+        int first = Integer.MAX_VALUE, second = Integer.MAX_VALUE;
+        for (int j=0; j<getCities(); j++)
+        {
+            if (i == j)
+                continue;
+
+            if (getDistance(i, j) <= first)
+            {
+                second = first;
+                first = getDistance(i, j);
+            }
+            else if (getDistance(i, j) <= second &&
+                    getDistance(i, j) != first)
+                second = getDistance(i, j);
+        }
+        return second;
+    }
+
+    void reduceMatrix(int[][] arr){
+        sumReduction = 0;
+        for(int i = 0; i < getCities(); i++){
+            int localMin = firstMin(0, i);
+            sumReduction += localMin;
+            for(int j= 0; j < getCities(); j++) {
+                arr[i][j] -= localMin;
+            }
+        }
+
+        for(int i = 0; i < getCities(); i++){
+            int localMin = firstMin2(0, i);
+            sumReduction += localMin;
+            for(int j= 0; j < getCities(); j++) {
+                arr[j][i] -= localMin;
+            }
+        }
+    }
+
+    void expandNode(int i){
+        int firstSum = 0;
+        int[][] tempArr = distance.clone();
+        int[][] arrAfterFirstIt = new int[getCities()][getCities()];
+        for (int k = 0; k < getCities(); k++){
+
+            if(k > 0) tempArr = arrAfterFirstIt;
+
+        for (int j= 0; j< getCities(); j++)
+        tempArr[0][j] = Integer.MAX_VALUE;
+
+        for (int j= 0; j< getCities(); j++)
+            tempArr[j][k] = Integer.MAX_VALUE;
+
+            tempArr[k+1][0] = Integer.MAX_VALUE;
+
+            reduceMatrix(tempArr);
+
+            if(k == 0){
+                firstSum = sumReduction;
+                arrAfterFirstIt = tempArr;
+            }
+
+        bounds[k] = sumReduction + getDistance(0, k) + firstSum;
+
+        }
+    }
+
+    void branch(){
+
+    }
+
+
+    int boundFun(int from, int i) throws Exception {
+        if(from >= i) throw new Exception("Wrong parameters for bound");
+        return (firstMin(from, i) + firstMin2(from, i))/2;
+    }
+    
+    int bound2(int from, int i){
+        int bound = 0;
+        for(int j = 0; j <= i; j++)
+        bound += firstMin(from, j);
+
+        return bound;
     }
 
 }

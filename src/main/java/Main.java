@@ -1,14 +1,16 @@
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        TSP tsp = TSP.readFromFileScanner("test3.txt");
+        TSP tsp = TSP.readFromFileScanner("test5.txt");
+        //tsp.reduceMatrix(tsp.distance);
         tsp.printDistances();
-        tsp.solution(true);
+        System.out.println(tsp.sumReduction);
+        tsp.bruteForce(true);
 
         long start = System.nanoTime();
 
         for(int i = 0; i < 100; i++){
-            tsp.solution(false);
+            tsp.bruteForce(false);
         }
 
         long finish = System.nanoTime();
