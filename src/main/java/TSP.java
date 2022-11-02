@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class TSP {
@@ -181,23 +180,35 @@ public class TSP {
 
     // Function to find the minimum edge cost
     // having an end at the vertex i
-    int firstMin(int from, int i, int[][] arr)
+    int firstMinRow(int from, int i, int[][] arr)
     {
-        int min = Integer.MAX_VALUE;
-        for (int k = from; k < getCities(); k++)
+        int count = 0;
+        int min = 9999;
+        for (int k = from; k < getCities(); k++){
+            if(arr[i][k] > 9000)
+                count++;
             if (arr[i][k] < min && i != k)
                 min = arr[i][k];
+        }
+        if(count == getCities())
+            min = 0;
         return min;
     }
 
     // Function to find the minimum edge cost
     // having an end at the vertex i
-    int firstMin2(int from, int i, int[][] arr)
+    int firstMinCol(int from, int i, int[][] arr)
     {
-        int min = Integer.MAX_VALUE;
-        for (int k = from; k < getCities(); k++)
+        int count = 0;
+        int min = 9999;
+        for (int k = from; k < getCities(); k++){
+            if(arr[k][i] > 9000)
+                count++;
             if (arr[k][i] < min && i != k)
                 min = arr[k][i];
+        }
+        if(count == getCities())
+            min = 0;
         return min;
     }
 
@@ -226,20 +237,24 @@ public class TSP {
     void reduceMatrix(int[][] arr){
         sumReduction = 0;
         for(int i = 0; i < getCities(); i++){
-            int localMin = firstMin(0, i, arr);
+            int localMin = firstMinRow(0, i, arr);
             sumReduction += localMin;
+            //System.out.print(localMin + " ");
             for(int j= 0; j < getCities(); j++) {
                 arr[i][j] -= localMin;
             }
         }
+        //System.out.println();
 
         for(int i = 0; i < getCities(); i++){
-            int localMin = firstMin2(0, i, arr);
+            int localMin = firstMinCol(0, i, arr);
             sumReduction += localMin;
+            //System.out.print(localMin + " ");
             for(int j= 0; j < getCities(); j++) {
                 arr[j][i] -= localMin;
             }
         }
+       //System.out.println();
     }
 
     void expandNodes(){
@@ -289,22 +304,28 @@ public class TSP {
             int edge = tempArr[0][k];
 
         for (int j= 0; j< getCities(); j++)
-        tempArr[0][j] = Integer.MAX_VALUE;
+        tempArr[0][j] = 9999;
 
         for (int j= 0; j< getCities(); j++)
-            tempArr[j][k] = Integer.MAX_VALUE;
+            tempArr[j][k] = 9999;
 
-            tempArr[k][0] = Integer.MAX_VALUE;
-
+            tempArr[k][0] = 9999;
 
             /*for( int i = 0; i < this.getCities(); i++){
-            for( int j = 0; j < this.getCities(); j++)
-                System.out.print(tempArr[i][j] + ", ");
-        System.out.print("\n");
-        }
-            System.out.println();*/
+                for( int j = 0; j < this.getCities(); j++)
+                    System.out.print(tempArr[i][j] + ", ");
+                System.out.print("\n");
+            }
+            System.out.println("zzzzzzzzzzzzzzzzzz");*/
 
             reduceMatrix(tempArr);
+
+           /* for( int i = 0; i < this.getCities(); i++){
+                for( int j = 0; j < this.getCities(); j++)
+                    System.out.print(tempArr[i][j] + ", ");
+                System.out.print("\n");
+            }
+            System.out.println();*/
 
         bounds[k-1] = sumReduction + edge + firstSum;
             System.out.println(sumReduction + " + " + edge + " + " + firstSum + " = " + bounds[k-1]);
@@ -314,13 +335,13 @@ public class TSP {
 
     int boundFun(int from, int i) throws Exception {
         if(from >= i) throw new Exception("Wrong parameters for bound");
-        return (firstMin(from, i, distance) + firstMin2(from, i, distance))/2;
+        return (firstMinRow(from, i, distance) + firstMinCol(from, i, distance))/2;
     }
     
     int bound2(int from, int i){
         int bound = 0;
         for(int j = 0; j <= i; j++)
-        bound += firstMin(from, j, distance);
+        bound += firstMinRow(from, j, distance);
 
         return bound;
     }
