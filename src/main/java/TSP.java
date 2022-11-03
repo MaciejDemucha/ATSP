@@ -1,4 +1,6 @@
 import java.io.*;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class TSP {
@@ -13,10 +15,12 @@ public class TSP {
 
     int hamiltonCycle;
 
-    int sumReduction;
-    int[] bounds;
+    int sumReduction = 0;
+    int costOfStartNode = 0;
+    Node[] bounds;
 
     int[] final_path;
+    HashMap<Integer, Integer> finalPath = new HashMap<>();
     // Stores the final minimum weight of shortest tour.
     static int final_res = Integer.MAX_VALUE;
 
@@ -57,6 +61,14 @@ public class TSP {
         }
     }
 
+    int getNumOfUnvisitedCities(){
+        int count = 0;
+        for (boolean visited: visitCity) {
+            if(!visited) count++;
+        }
+        return count;
+    }
+
     public static TSP readFromFile(BufferedReader reader) throws IOException {
         TSP tsp = new TSP();
 
@@ -69,10 +81,7 @@ public class TSP {
             line = reader.readLine();
             txt = line.split(" ");
             for( int j = 0; j < tsp.getCities(); j++){
-                //int distance = Integer.parseInt(txt[j]);
                 tsp.setDistance(i, j, Integer.parseInt(txt[j]));
-                //if(tsp.getDistance(i, j) == 0)
-                    //tsp.setDistance(i, j, Integer.MAX_VALUE);
             }
         }
 
@@ -127,6 +136,9 @@ public class TSP {
 
             // by default, we make the first city visited
             tsp.visitCity[0] = true;
+
+            tsp.final_path = new int[tsp.getCities() + 1];
+            tsp.final_path[0] = 0;
         }
         catch (FileNotFoundException e){
             throw new FileNotFoundException("Nie odnaleziono pliku " + filePath);
@@ -154,8 +166,6 @@ public class TSP {
 
                 // Mark as visited
                 visitCity[i] = true;
-                //System.out.print(currPos + 1 + ", ");
-
 
                 hamiltonianCycle = findHamiltonianCycle(distance, visitCity, i, cities, count + 1, cost + distance[currPos][i], hamiltonianCycle);
 
@@ -163,7 +173,6 @@ public class TSP {
                 visitCity[i] = false;
             }
         }
-        //System.out.println(hamiltonianCycle);
         return hamiltonianCycle;
     }
 
@@ -212,6 +221,19 @@ public class TSP {
         return min;
     }
 
+    Node nodeWithMinCost(Node[] arr){
+        int index = 0;
+        int min = arr[0].getCost();
+        for(int i = 0; i < arr.length; i++){
+            if(arr[i].getCost() < min){
+                min = arr[i].getCost();
+                index = arr[i].getNumber();
+            }
+        }
+        Node node = new Node(index, min);
+        return node;
+    }
+
     // function to find the second minimum edge cost
     // having an end at the vertex i
     int secondMin(int i)
@@ -239,27 +261,24 @@ public class TSP {
         for(int i = 0; i < getCities(); i++){
             int localMin = firstMinRow(0, i, arr);
             sumReduction += localMin;
-            //System.out.print(localMin + " ");
             for(int j= 0; j < getCities(); j++) {
                 arr[i][j] -= localMin;
             }
         }
-        //System.out.println();
 
         for(int i = 0; i < getCities(); i++){
             int localMin = firstMinCol(0, i, arr);
             sumReduction += localMin;
-            //System.out.print(localMin + " ");
             for(int j= 0; j < getCities(); j++) {
                 arr[j][i] -= localMin;
             }
         }
-       //System.out.println();
     }
 
-    void expandNodes(){
-        int firstSum = 0;
-        bounds = new int[getCities() - 1];
+    void expandNodes(int from){
+        bounds = new Node[getNumOfUnvisitedCities()];
+        int boundNumber = 0;
+        System.out.println("Unvisited: " + getNumOfUnvisitedCities());
 
         int[][] tempArr = new int[getCities()][getCities()];
 
@@ -267,69 +286,63 @@ public class TSP {
             for( int j = 0; j < this.getCities(); j++)
                 tempArr[i][j] = getDistance(i,j);
 
-       /* for( int i = 0; i < this.getCities(); i++){
-            for( int j = 0; j < this.getCities(); j++)
-                System.out.print(tempArr[i][j] + ", ");
-            System.out.print("\n");
-        }
-        System.out.println();*/
-
         reduceMatrix(tempArr);
-        firstSum = sumReduction;
+        if(costOfStartNode == 0)
+            costOfStartNode = sumReduction;
+
         int[][] arrAfterFirstReduction = new int[getCities()][getCities()];
 
         for( int i = 0; i < this.getCities(); i++)
             for( int j = 0; j < this.getCities(); j++)
                 arrAfterFirstReduction[i][j] = tempArr[i][j];
 
-        /*for( int i = 0; i < this.getCities(); i++){
-            for( int j = 0; j < this.getCities(); j++)
-                System.out.print(arrAfterFirstReduction[i][j] + ", ");
-            System.out.print("\n");
-        }
-        System.out.println();*/
-
-        for (int k = 1; k < getCities(); k++){
+        for (int k = 0; k < getCities(); k++){
+            System.out.println(k +" " + visitCity[k]);
+            if(visitCity[k]) continue;
+            boundNumber++;
 
             for( int i = 0; i < this.getCities(); i++)
                 for( int j = 0; j < this.getCities(); j++)
                     tempArr[i][j] = arrAfterFirstReduction[i][j];
 
-            /*for( int i = 0; i < this.getCities(); i++){
-                for( int j = 0; j < this.getCities(); j++)
-                    System.out.print(tempArr[i][j] + ", ");
-                System.out.print("\n");
-            }
-            System.out.println();*/
-            int edge = tempArr[0][k];
+            int edge = tempArr[from][k];
 
-        for (int j= 0; j< getCities(); j++)
-        tempArr[0][j] = 9999;
+            for (int j= 0; j< getCities(); j++)
+                tempArr[from][j] = 9999;
 
-        for (int j= 0; j< getCities(); j++)
-            tempArr[j][k] = 9999;
+            for (int j= 0; j< getCities(); j++)
+                tempArr[j][k] = 9999;
 
-            tempArr[k][0] = 9999;
-
-            /*for( int i = 0; i < this.getCities(); i++){
-                for( int j = 0; j < this.getCities(); j++)
-                    System.out.print(tempArr[i][j] + ", ");
-                System.out.print("\n");
-            }
-            System.out.println("zzzzzzzzzzzzzzzzzz");*/
+            tempArr[k][from] = 9999;
 
             reduceMatrix(tempArr);
 
-           /* for( int i = 0; i < this.getCities(); i++){
-                for( int j = 0; j < this.getCities(); j++)
-                    System.out.print(tempArr[i][j] + ", ");
-                System.out.print("\n");
-            }
-            System.out.println();*/
-
-        bounds[k-1] = sumReduction + edge + firstSum;
-            System.out.println(sumReduction + " + " + edge + " + " + firstSum + " = " + bounds[k-1]);
+            Node node  = new Node(k+1, (sumReduction + edge + costOfStartNode));
+            bounds[boundNumber-1] = node;
+            System.out.println("from: " + (from+1));
+            System.out.println("bound " + (k+1) + ": " + sumReduction + " + " + edge + " + " + costOfStartNode + " = " + bounds[boundNumber-1].getCost());
         }
+
+        Node nodeWithMinCost = nodeWithMinCost(bounds);
+        final_path[1] = nodeWithMinCost.getNumber() - 1;
+        costOfStartNode = nodeWithMinCost.getCost();
+        visitCity[final_path[1]] = true;
+        int weight = getDistance(final_path[0], final_path[1]);
+        for (int node:final_path) {
+            System.out.print(node + " ");
+        }
+    }
+
+    void putToFinal(int i){
+        /*final_path[1] = nodeWithMinCost(bounds);
+        //finalPath.put();
+        //finalPath.
+        costOfStartNode = bounds[indexOfMin(bounds)];
+        visitCity[final_path[1]] = true;
+        int weight = getDistance(final_path[0], final_path[1]);
+        for (int node:final_path) {
+            System.out.print(node + " ");
+        }*/
     }
 
 
