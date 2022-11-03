@@ -141,6 +141,7 @@ public class TSP {
 
             tsp.final_path = new int[tsp.getCities() + 1];
             tsp.final_path[0] = 0;
+            tsp.finalPathIndex = 0;
         }
         catch (FileNotFoundException e){
             throw new FileNotFoundException("Nie odnaleziono pliku " + filePath);
@@ -179,15 +180,6 @@ public class TSP {
     }
 
     //Branch and Bound
-
-    // Function to copy temporary solution to
-    // the final solution
-    void copyToFinal(int curr_path[])
-    {
-        for (int i = 0; i < this.getCities(); i++)
-            final_path[i] = curr_path[i];
-        final_path[this.getCities()] = curr_path[0];
-    }
 
     // Function to find the minimum edge cost
     // having an end at the vertex i
@@ -277,7 +269,7 @@ public class TSP {
         }
     }
 
-    void expandNodes(int from){
+    void expandNodes(int from, boolean print){
         bounds = new Node[getNumOfUnvisitedCities()];
         int boundNumber = 0;
 
@@ -319,32 +311,30 @@ public class TSP {
 
             Node node  = new Node(k+1, (sumReduction + edge + costOfStartNode));
             bounds[boundNumber-1] = node;
-            System.out.println("from: " + (from));
-            System.out.println("bound " + (k+1) + ": " + sumReduction + " + " + edge + " + " + costOfStartNode + " = " + bounds[boundNumber-1].getCost());
+            if(print){
+                System.out.println("from: " + (from));
+                System.out.println("bound " + (k+1) + ": " + sumReduction + " + " + edge + " + " + costOfStartNode + " = " + bounds[boundNumber-1].getCost());
+            }
         }
 
         Node nodeWithMinCost = nodeWithMinCost(bounds);
         final_path[++finalPathIndex] = nodeWithMinCost.getNumber() - 1;
         costOfStartNode = nodeWithMinCost.getCost();
         visitCity[final_path[finalPathIndex]] = true;
-        finalPathDistance += getDistance(final_path[from], final_path[finalPathIndex]);
+        finalPathDistance += getDistance(from, final_path[finalPathIndex]);
+        if(getNumOfUnvisitedCities() == 0) finalPathDistance += getDistance(final_path[finalPathIndex], 0);
+        if(print)
         for (int node:final_path) {
             System.out.print(node + " ");
         }
     }
 
-    void putToFinal(int i){
-        /*final_path[1] = nodeWithMinCost(bounds);
-        //finalPath.put();
-        //finalPath.
-        costOfStartNode = bounds[indexOfMin(bounds)];
-        visitCity[final_path[1]] = true;
-        int weight = getDistance(final_path[0], final_path[1]);
-        for (int node:final_path) {
-            System.out.print(node + " ");
-        }*/
+    public void bnBSolution(boolean print){
+        while(getNumOfUnvisitedCities() > 0){
+            expandNodes(final_path[finalPathIndex], print);
+        }
+        if(print) System.out.println("Distance: " + this.finalPathDistance);
     }
-
 
     int boundFun(int from, int i) throws Exception {
         if(from >= i) throw new Exception("Wrong parameters for bound");
