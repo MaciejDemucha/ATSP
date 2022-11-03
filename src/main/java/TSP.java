@@ -20,6 +20,8 @@ public class TSP {
     Node[] bounds;
 
     int[] final_path;
+    int finalPathIndex = 0;
+    int finalPathDistance = 0;
     HashMap<Integer, Integer> finalPath = new HashMap<>();
     // Stores the final minimum weight of shortest tour.
     static int final_res = Integer.MAX_VALUE;
@@ -222,7 +224,7 @@ public class TSP {
     }
 
     Node nodeWithMinCost(Node[] arr){
-        int index = 0;
+        int index = arr[0].getNumber();
         int min = arr[0].getCost();
         for(int i = 0; i < arr.length; i++){
             if(arr[i].getCost() < min){
@@ -278,7 +280,6 @@ public class TSP {
     void expandNodes(int from){
         bounds = new Node[getNumOfUnvisitedCities()];
         int boundNumber = 0;
-        System.out.println("Unvisited: " + getNumOfUnvisitedCities());
 
         int[][] tempArr = new int[getCities()][getCities()];
 
@@ -297,7 +298,6 @@ public class TSP {
                 arrAfterFirstReduction[i][j] = tempArr[i][j];
 
         for (int k = 0; k < getCities(); k++){
-            System.out.println(k +" " + visitCity[k]);
             if(visitCity[k]) continue;
             boundNumber++;
 
@@ -319,15 +319,15 @@ public class TSP {
 
             Node node  = new Node(k+1, (sumReduction + edge + costOfStartNode));
             bounds[boundNumber-1] = node;
-            System.out.println("from: " + (from+1));
+            System.out.println("from: " + (from));
             System.out.println("bound " + (k+1) + ": " + sumReduction + " + " + edge + " + " + costOfStartNode + " = " + bounds[boundNumber-1].getCost());
         }
 
         Node nodeWithMinCost = nodeWithMinCost(bounds);
-        final_path[1] = nodeWithMinCost.getNumber() - 1;
+        final_path[++finalPathIndex] = nodeWithMinCost.getNumber() - 1;
         costOfStartNode = nodeWithMinCost.getCost();
-        visitCity[final_path[1]] = true;
-        int weight = getDistance(final_path[0], final_path[1]);
+        visitCity[final_path[finalPathIndex]] = true;
+        finalPathDistance += getDistance(final_path[from], final_path[finalPathIndex]);
         for (int node:final_path) {
             System.out.print(node + " ");
         }
