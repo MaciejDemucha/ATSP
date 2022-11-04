@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -22,9 +23,6 @@ public class TSP {
     int[] final_path;
     int finalPathIndex = 0;
     int finalPathDistance = 0;
-    HashMap<Integer, Integer> finalPath = new HashMap<>();
-    // Stores the final minimum weight of shortest tour.
-    static int final_res = Integer.MAX_VALUE;
 
     public int getCities() {
         return cities;
@@ -34,7 +32,7 @@ public class TSP {
         this.cities = cities;
     }
 
-    public int[][] getDistance() {
+    public int[][] getMatrix() {
         return distance;
     }
 
@@ -69,41 +67,6 @@ public class TSP {
             if(!visited) count++;
         }
         return count;
-    }
-
-    public static TSP readFromFile(BufferedReader reader) throws IOException {
-        TSP tsp = new TSP();
-
-        String line = reader.readLine();
-        String[] txt = line.split(" ");
-        tsp.setCities(Integer.parseInt(txt[0]));
-
-        tsp.setMatrix(tsp.getCities(), tsp.getCities());
-        for( int i = 0; i < tsp.getCities(); i++){
-            line = reader.readLine();
-            txt = line.split(" ");
-            for( int j = 0; j < tsp.getCities(); j++){
-                tsp.setDistance(i, j, Integer.parseInt(txt[j]));
-            }
-        }
-
-        // create an array of type boolean to check if a node has been visited or not
-        tsp.visitCity = new boolean[tsp.getCities()];
-
-        // by default, we make the first city visited
-        tsp.visitCity[0] = true;
-
-        return tsp;
-    }
-
-    public static TSP readFromFile(String file_name) throws Exception {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file_name))) {
-            return TSP.readFromFile(reader);
-        } catch (FileNotFoundException e){
-            throw new Exception("Nie odnaleziono pliku " + file_name);
-        } catch(IOException e){
-            throw new Exception("Wystąpił błąd podczas odczytu danych z pliku.");
-        }
     }
 
     public static TSP readFromFileScanner(String filePath) throws FileNotFoundException {
@@ -144,7 +107,8 @@ public class TSP {
             tsp.finalPathIndex = 0;
         }
         catch (FileNotFoundException e){
-            throw new FileNotFoundException("Nie odnaleziono pliku " + filePath);
+            System.out.println("Nie odnaleziono pliku " + filePath);
+            return null;
         }
         return tsp;
     }
@@ -152,7 +116,10 @@ public class TSP {
     public void bruteForce(boolean print){
         hamiltonCycle = findHamiltonianCycle(distance, visitCity, 0, cities, 1, 0, hamiltonCycle);
         if(print)
-        System.out.println(hamiltonCycle);
+        System.out.println("Distance: " + hamiltonCycle);
+
+        Arrays.fill(visitCity, false);
+        visitCity[0] = true;
     }
 
     // create findHamiltonianCycle() method to get minimum weighted cycle
@@ -226,28 +193,6 @@ public class TSP {
         }
         Node node = new Node(index, min);
         return node;
-    }
-
-    // function to find the second minimum edge cost
-    // having an end at the vertex i
-    int secondMin(int i)
-    {
-        int first = Integer.MAX_VALUE, second = Integer.MAX_VALUE;
-        for (int j=0; j<getCities(); j++)
-        {
-            if (i == j)
-                continue;
-
-            if (getDistance(i, j) <= first)
-            {
-                second = first;
-                first = getDistance(i, j);
-            }
-            else if (getDistance(i, j) <= second &&
-                    getDistance(i, j) != first)
-                second = getDistance(i, j);
-        }
-        return second;
     }
 
     void reduceMatrix(int[][] arr){
@@ -334,6 +279,14 @@ public class TSP {
             expandNodes(final_path[finalPathIndex], print);
         }
         if(print) System.out.println("Distance: " + this.finalPathDistance);
+
+        Arrays.fill(visitCity, false);
+        visitCity[0] = true;
+        Arrays.fill(final_path, 0);
+        finalPathIndex = 0;
+        finalPathDistance = 0;
+        costOfStartNode = 0;
+        sumReduction = 0;
     }
 
     int boundFun(int from, int i) throws Exception {
