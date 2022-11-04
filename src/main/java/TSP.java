@@ -244,6 +244,15 @@ public class TSP {
 
             int edge = tempArr[from][k];
 
+            for(int l= 0; l < visitCity.length; l++){
+                if(visitCity[l]){
+                    for (int m= 0; m< getCities(); m++){
+                        tempArr[l][m] = 9999;
+                        tempArr[m][l] = 9999;
+                    }
+                }
+            }
+
             for (int j= 0; j< getCities(); j++)
                 tempArr[from][j] = 9999;
 
@@ -288,18 +297,4 @@ public class TSP {
         costOfStartNode = 0;
         sumReduction = 0;
     }
-
-    int boundFun(int from, int i) throws Exception {
-        if(from >= i) throw new Exception("Wrong parameters for bound");
-        return (firstMinRow(from, i, distance) + firstMinCol(from, i, distance))/2;
-    }
-    
-    int bound2(int from, int i){
-        int bound = 0;
-        for(int j = 0; j <= i; j++)
-        bound += firstMinRow(from, j, distance);
-
-        return bound;
-    }
-
 }

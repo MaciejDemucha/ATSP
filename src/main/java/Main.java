@@ -23,8 +23,8 @@ public class Main {
 
     static void menu() throws FileNotFoundException {
         TSP tsp = null;
-        Scanner scanner = new Scanner(System.in);
-        Scanner scanner2 = new Scanner(System.in);
+        Scanner scannerChoice = new Scanner(System.in);
+        Scanner scannerFile = new Scanner(System.in);
         boolean shouldContinue = true;
         int userChoice;
         String fileName = "";
@@ -37,12 +37,12 @@ public class Main {
             System.out.println("4.Branch and Bound ");
             System.out.println("5.Wyjdź ");
 
-            userChoice = scanner.nextInt();
+            userChoice = scannerChoice.nextInt();
 
             switch (userChoice){
                 case 1 -> {
                     System.out.println("Podaj nazwę pliku z rozszerzeniem: ");
-                    fileName = scanner2.nextLine();
+                    fileName = scannerFile.nextLine();
                     tsp = TSP.readFromFileScanner(fileName);
                 }
                 case 2 -> {
@@ -52,9 +52,8 @@ public class Main {
                         System.out.println("Nie załadowano pliku");
                 }
                 case 3 -> {
-                    if(tsp != null){
+                    if(tsp != null)
                         tsp.bruteForce(true);
-                    }
                     else
                         System.out.println("Nie załadowano pliku");
                 }
