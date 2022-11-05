@@ -1,7 +1,4 @@
-import java.io.FileNotFoundException;
-import java.util.Arrays;
 import java.util.Scanner;
-import java.util.stream.Stream;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -21,7 +18,7 @@ public class Main {
         System.out.println("Time: " + (timeElapsed / 1000000.0)/100.0 + " ms");*/
     }
 
-    static void menu() throws FileNotFoundException {
+    static void menu() {
         TSP tsp = null;
         Scanner scannerChoice = new Scanner(System.in);
         Scanner scannerFile = new Scanner(System.in);
