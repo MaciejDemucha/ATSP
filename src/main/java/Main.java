@@ -2,20 +2,23 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        menu();
+        //menu();
+        measurements();
     }
 
     static void measurements(){
-        /*long start = System.nanoTime();
+        TSP tsp;
+        long start = System.nanoTime();
 
         for(int i = 0; i < 100; i++){
-            tsp.bruteForce(false);
+            tsp = TSP.createRandomMatrix(150);
+            tsp.bnBSolution(false);
         }
 
         long finish = System.nanoTime();
 
         long timeElapsed = finish - start;
-        System.out.println("Time: " + (timeElapsed / 1000000.0)/100.0 + " ms");*/
+        System.out.println("Time: " + (timeElapsed / 1000000.0)/100.0 + " ms");
     }
 
     static void menu() {
@@ -26,13 +29,13 @@ public class Main {
         int userChoice;
         String fileName = "";
         while(shouldContinue){
-            System.out.println("Załadowany plik: " + fileName + "\n");
+            System.out.println("\nZaładowany plik: " + fileName + "\n");
             System.out.println("Wybierz opcję: ");
             System.out.println("1.Wczytaj plik ");
             System.out.println("2.Wyświetl macierz odległości ");
             System.out.println("3.Brute Force ");
             System.out.println("4.Branch and Bound ");
-            System.out.println("5.Wyjdź ");
+            System.out.println("5.Wyjdź \n");
 
             userChoice = scannerChoice.nextInt();
 

@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.Scanner;
 
 public class TSP {
@@ -69,6 +70,37 @@ public class TSP {
             if(!visited) count++;
         }
         return count;
+    }
+
+    /**
+     * Tworzy losową macierz odległości i ustawia ją.
+     * @param size - rozmiar macierzy -- liczba miast
+     */
+    public static TSP createRandomMatrix(int size){
+        TSP tsp = new TSP();
+        Random random = new Random();
+        int[][] matrix = new int[size][size];
+        int upperbound = 300; //odległość z zakresu 0-299
+        for(int i=0; i<size; i++)
+            for(int j=0; j<size; j++)
+                matrix[i][j] = random.nextInt(upperbound);
+
+        tsp.setMatrix(matrix);
+        tsp.setCities(size);
+        //Tablica visitCity ma długość równą liczbie miast
+        tsp.visitCity = new boolean[tsp.getCities()];
+
+        //Domyślnie zaczynamy od miasta pierwszego
+        tsp.visitCity[0] = true;
+
+        //Tablica ścieżki ma długość liczba miast + 1 (ostatnie miejsce dla miasta początkowego do którego wracamy po odwiedzeniu reszty)
+        tsp.final_path = new int[tsp.getCities() + 1];
+        //Pierwszy element ścieżki przyjmuje wartość numeru miasta początkowego
+        tsp.final_path[0] = 0;
+        //Inicjalizacja zmiennej pomocniczej
+        tsp.finalPathIndex = 0;
+
+        return tsp;
     }
 
     /** Wczytanie danych z pliku */
