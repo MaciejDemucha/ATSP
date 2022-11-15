@@ -1,9 +1,10 @@
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        //menu();
-        measurements();
+        menu();
+        //measurements();
     }
 
     static void measurements(){
@@ -11,7 +12,7 @@ public class Main {
         long start = System.nanoTime();
 
         for(int i = 0; i < 100; i++){
-            tsp = TSP.createRandomMatrix(150);
+            tsp = TSP.createRandomMatrix(10);
             tsp.bnBSolution(false);
         }
 
@@ -26,7 +27,7 @@ public class Main {
         Scanner scannerChoice = new Scanner(System.in);
         Scanner scannerFile = new Scanner(System.in);
         boolean shouldContinue = true;
-        int userChoice;
+        int userChoice = 0;
         String fileName = "";
         while(shouldContinue){
             System.out.println("\nZaładowany plik: " + fileName + "\n");
@@ -37,7 +38,8 @@ public class Main {
             System.out.println("4.Branch and Bound ");
             System.out.println("5.Wyjdź \n");
 
-            userChoice = scannerChoice.nextInt();
+            try{
+                userChoice = scannerChoice.nextInt();
 
             switch (userChoice){
                 case 1 -> {
@@ -64,6 +66,13 @@ public class Main {
                         System.out.println("Nie załadowano pliku");
                 }
                 case 5 -> shouldContinue = false;
+                default -> System.out.println(" ");
+            }
+
+            }
+            catch (InputMismatchException e){
+                System.out.println(" ");
+                scannerChoice.nextLine();
             }
         }
     }

@@ -21,7 +21,7 @@ public class TSP {
     int costOfStartNode = 0;    //koszt węzła startowego w poszczególnych iteracjach metody podziału i ograniczeń
     Node[] bounds;              //Tablica szacowanych kosztów stanowiących kryterium wyboru następnego węzła
 
-    int[] final_path;           //tablica zawierająca numery kolejnych miast w najkrótszej ścieżce
+    int[] finalPath;           //tablica zawierająca numery kolejnych miast w najkrótszej ścieżce
     int finalPathIndex = 0;     //zmienna pomocnicza używana przy wpisywaniu numerów miast do najkrótszej ścieżki
     int finalPathDistance = 0;  //waga znalezionej ścieżki
 
@@ -80,10 +80,10 @@ public class TSP {
         TSP tsp = new TSP();
         Random random = new Random();
         int[][] matrix = new int[size][size];
-        int upperbound = 300; //odległość z zakresu 0-299
+        int upperbound = 300;
         for(int i=0; i<size; i++)
             for(int j=0; j<size; j++)
-                matrix[i][j] = random.nextInt(upperbound);
+                matrix[i][j] = random.nextInt(upperbound) + 1; //odległość z zakresu 1-300
 
         tsp.setMatrix(matrix);
         tsp.setCities(size);
@@ -94,9 +94,9 @@ public class TSP {
         tsp.visitCity[0] = true;
 
         //Tablica ścieżki ma długość liczba miast + 1 (ostatnie miejsce dla miasta początkowego do którego wracamy po odwiedzeniu reszty)
-        tsp.final_path = new int[tsp.getCities() + 1];
+        tsp.finalPath = new int[tsp.getCities() + 1];
         //Pierwszy element ścieżki przyjmuje wartość numeru miasta początkowego
-        tsp.final_path[0] = 0;
+        tsp.finalPath[0] = 0;
         //Inicjalizacja zmiennej pomocniczej
         tsp.finalPathIndex = 0;
 
@@ -141,9 +141,9 @@ public class TSP {
             tsp.visitCity[0] = true;
 
             //Tablica ścieżki ma długość liczba miast + 1 (ostatnie miejsce dla miasta początkowego do którego wracamy po odwiedzeniu reszty)
-            tsp.final_path = new int[tsp.getCities() + 1];
+            tsp.finalPath = new int[tsp.getCities() + 1];
             //Pierwszy element ścieżki przyjmuje wartość numeru miasta początkowego
-            tsp.final_path[0] = 0;
+            tsp.finalPath[0] = 0;
             //Inicjalizacja zmiennej pomocniczej
             tsp.finalPathIndex = 0;
         }
@@ -159,8 +159,9 @@ public class TSP {
      */
     public void bruteForce(boolean print){
         hamiltonCycle = findHamiltonianCycle(distance, visitCity, 0, cities, 1, 0, hamiltonCycle);
-        if(print)
+        if(print){
             System.out.println("Distance: " + hamiltonCycle);
+        }
 
         //Reset zmiennych po zakończeniu algorytmu
         Arrays.fill(visitCity, false);
@@ -177,9 +178,9 @@ public class TSP {
      * @param cost - koszt aktualnie przebytej ścieżki
      * @param hamiltonianCycle - waga znalezionego cyklu Hamiltona
      */
-    static int findHamiltonianCycle(int[][] distance, boolean[] visitCity, int currPos, int cities, int count, int cost, int hamiltonianCycle) {
-
-        //Sprawdzenie czy liczba przejść równa się liczbie miast.
+     int findHamiltonianCycle(int[][] distance, boolean[] visitCity, int currPos, int cities, int count, int cost, int hamiltonianCycle) {
+        int[] tempPath = new int[getCities()];
+         //Sprawdzenie czy liczba przejść równa się liczbie miast.
         //Jeśli tak, to sprawdzamy co ma mniejsza wagę: poprzednio znaleziony cykl czy ten obecny składający się z
         //przebytej ścieżki i powrotu do początkowego węzła.
         if (count == cities && distance[currPos][0] > 0) {
@@ -331,7 +332,7 @@ public class TSP {
             int edge = tempArr[from][k];    //zapisujemy koszt przejścia z węzła początkowego do rozpatrywanego
 
             //Jeśli miasto zostało już odwiedzone to nie rozważamy przejść do niego więc ustawiamy odległości z i do niego jako nieskończoność
-            for(int l= 0; l < visitCity.length; l++){
+            for(int l= 1; l < visitCity.length; l++){
                 if(visitCity[l]){
                     for (int m= 0; m< getCities(); m++){
                         tempArr[l][m] = 9999;
@@ -359,19 +360,19 @@ public class TSP {
             bounds[boundNumber-1] = node;
             if(print){
                 System.out.println("from: " + (from));
-                System.out.println("bound " + (k+1) + ": " + sumReduction + " + " + edge + " + " + costOfStartNode + " = " + bounds[boundNumber-1].getCost());
+                System.out.println("bound " + (k) + ": " + sumReduction + " + " + edge + " + " + costOfStartNode + " = " + bounds[boundNumber-1].getCost());
             }
         }
 
         //Szukamy węzła z minimalnym kosztem, wstawiamy jego numer do ścieżki, oznaczamy miasto jako odwiedzone i dodajemy wagę do ostatecznego kosztu ścieżki.
         Node nodeWithMinCost = nodeWithMinCost(bounds);
-        final_path[++finalPathIndex] = nodeWithMinCost.getNumber() - 1;
+        finalPath[++finalPathIndex] = nodeWithMinCost.getNumber() - 1;
         costOfStartNode = nodeWithMinCost.getCost();
-        visitCity[final_path[finalPathIndex]] = true;
-        finalPathDistance += getDistance(from, final_path[finalPathIndex]);
-        if(getNumOfUnvisitedCities() == 0) finalPathDistance += getDistance(final_path[finalPathIndex], 0);
+        visitCity[finalPath[finalPathIndex]] = true;
+        finalPathDistance += getDistance(from, finalPath[finalPathIndex]);
+        if(getNumOfUnvisitedCities() == 0) finalPathDistance += getDistance(finalPath[finalPathIndex], 0);
         if(print){
-            for (int node:final_path)
+            for (int node: finalPath)
                 System.out.print(node + " ");
             System.out.println();
         }
@@ -383,13 +384,13 @@ public class TSP {
      */
     public void bnBSolution(boolean print){
         while(getNumOfUnvisitedCities() > 0){
-            expandNodes(final_path[finalPathIndex], false);
+            expandNodes(finalPath[finalPathIndex], false);
         }
 
         if(print) {
             System.out.println("Distance: " + this.finalPathDistance);
             System.out.print("Path: ");
-            for (int node:final_path)
+            for (int node: finalPath)
                 System.out.print(node + " ");
             System.out.println();
         }
@@ -397,7 +398,7 @@ public class TSP {
         //Reset zmiennych po zakończeniu algorytmu
         Arrays.fill(visitCity, false);
         visitCity[0] = true;
-        Arrays.fill(final_path, 0);
+        Arrays.fill(finalPath, 0);
         finalPathIndex = 0;
         finalPathDistance = 0;
         costOfStartNode = 0;
