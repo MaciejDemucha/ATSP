@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
@@ -24,6 +25,11 @@ public class TSP {
     int[] finalPath;           //tablica zawierająca numery kolejnych miast w najkrótszej ścieżce
     int finalPathIndex = 0;     //zmienna pomocnicza używana przy wpisywaniu numerów miast do najkrótszej ścieżki
     int finalPathDistance = 0;  //waga znalezionej ścieżki
+
+    //Zmienne pomocnicze do otrzymania ścieżki przy wywoływaniu permutacji w Brute Force
+    //ArrayList<Integer> tempPath = new ArrayList();
+    int[] tempPath;
+
 
     public int getCities() {
         return cities;
@@ -100,6 +106,8 @@ public class TSP {
         //Inicjalizacja zmiennej pomocniczej
         tsp.finalPathIndex = 0;
 
+        tsp.tempPath = new int[tsp.getCities() + 1];
+
         return tsp;
     }
 
@@ -142,6 +150,7 @@ public class TSP {
 
             //Tablica ścieżki ma długość liczba miast + 1 (ostatnie miejsce dla miasta początkowego do którego wracamy po odwiedzeniu reszty)
             tsp.finalPath = new int[tsp.getCities() + 1];
+            tsp.tempPath = new int[tsp.getCities() + 1];
             //Pierwszy element ścieżki przyjmuje wartość numeru miasta początkowego
             tsp.finalPath[0] = 0;
             //Inicjalizacja zmiennej pomocniczej
@@ -154,6 +163,7 @@ public class TSP {
         return tsp;
     }
 
+
     /** Funkcja realizująca przegląd zupełny
      * @param print - czy wyświetlić wyniki
      */
@@ -161,10 +171,16 @@ public class TSP {
         hamiltonCycle = findHamiltonianCycle(distance, visitCity, 0, cities, 1, 0, hamiltonCycle);
         if(print){
             System.out.println("Distance: " + hamiltonCycle);
+            System.out.print("Path: ");
+            for (Integer i: finalPath) {
+                System.out.print(i + " ");
+            }
+            System.out.println();
         }
 
         //Reset zmiennych po zakończeniu algorytmu
         Arrays.fill(visitCity, false);
+        Arrays.fill(finalPath, 0);
         visitCity[0] = true;
     }
 
@@ -179,18 +195,27 @@ public class TSP {
      * @param hamiltonianCycle - waga znalezionego cyklu Hamiltona
      */
      int findHamiltonianCycle(int[][] distance, boolean[] visitCity, int currPos, int cities, int count, int cost, int hamiltonianCycle) {
-        int[] tempPath = new int[getCities()];
          //Sprawdzenie czy liczba przejść równa się liczbie miast.
         //Jeśli tak, to sprawdzamy co ma mniejsza wagę: poprzednio znaleziony cykl czy ten obecny składający się z
         //przebytej ścieżki i powrotu do początkowego węzła.
-        if (count == cities && distance[currPos][0] > 0) {
-            hamiltonianCycle = Math.min(hamiltonianCycle, cost + distance[currPos][0]);
+        if (count == cities && distance[currPos][0] < 9999) {
+            tempPath[tempPath.length - 2] = currPos;
+
+            if(hamiltonianCycle > cost + distance[currPos][0]){
+                hamiltonianCycle = cost + distance[currPos][0];
+
+                for(int j = 0; j < getCities(); j++){
+                    finalPath[j] = tempPath[j];
+                }
+            }
+
             return hamiltonianCycle;
         }
 
         //Przeszukiwanie w głąb każdego miasta
         for (int i = 0; i < cities; i++) {
-            if (!visitCity[i] && distance[currPos][i] > 0) {
+            if (!visitCity[i] && distance[currPos][i] < 9999) {
+                    tempPath[count -1] = currPos;
 
                 //Oznaczamy aktualne miasto jako odwiedzone
                 visitCity[i] = true;
