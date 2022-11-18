@@ -1,9 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class TSP {
 
@@ -21,6 +18,8 @@ public class TSP {
     int sumReduction = 0;   //Suma liczb, które odejmowalismy od poszczególnych wierszy i kolumn w metodzie podziałui ograniczeń
     int costOfStartNode = 0;    //koszt węzła startowego w poszczególnych iteracjach metody podziału i ograniczeń
     Node[] bounds;              //Tablica szacowanych kosztów stanowiących kryterium wyboru następnego węzła
+
+    HashMap<Integer, int[][]> arrays = new HashMap<>();
 
     int[] finalPath;           //tablica zawierająca numery kolejnych miast w najkrótszej ścieżce
     int finalPathIndex = 0;     //zmienna pomocnicza używana przy wpisywaniu numerów miast do najkrótszej ścieżki
@@ -64,7 +63,16 @@ public class TSP {
         System.out.println(this.getCities());
         for( int i = 0; i < this.getCities(); i++){
             for( int j = 0; j < this.getCities(); j++)
-                System.out.print(this.getDistance(i, j) + " ");
+                System.out.print(this.getDistance(i, j) + ", ");
+            System.out.print("\n");
+        }
+    }
+
+    public static void printArray(int [][] arr){
+        System.out.println(arr.length);
+        for( int i = 0; i < arr.length; i++){
+            for( int j = 0; j < arr.length; j++)
+                System.out.print(arr[i][j] + ", ");
             System.out.print("\n");
         }
     }
@@ -274,21 +282,6 @@ public class TSP {
         return min;
     }
 
-    /**
-     * Funkcja zwracająca węzeł z najmniejszym oszacowanym kosztem.
-     * @param arr - tablica składająca się z obiektów typu Node zawierających numer miasta i oszacowany koszt
-     */
-    Node nodeWithMinCost(Node[] arr){
-        int index = arr[0].getNumber();
-        int min = arr[0].getCost();
-        for (Node node : arr) {
-            if (node.getCost() < min) {
-                min = node.getCost();
-                index = node.getNumber();
-            }
-        }
-        return new Node(index, min);
-    }
 
     /**
      * Funkcja redukująca macierz odległości: w każdym wierszu znajdujemy element minimalny i odejmujemy go od każdego elementu wiersza. Tak samo czynimy w kolumnach.
@@ -315,6 +308,36 @@ public class TSP {
     }
 
     /**
+     * Funkcja zwracająca węzeł z najmniejszym oszacowanym kosztem.
+     * @param arr - tablica składająca się z obiektów typu Node zawierających numer miasta i oszacowany koszt
+     */
+    Node nodeWithMinCost(Node[] arr){
+        int index = arr[0].getNumber();
+        int min = arr[0].getCost();
+        for (Node node : arr) {
+            if (node.getCost() < min) {
+                min = node.getCost();
+                index = node.getNumber();
+            }
+        }
+        return new Node(index, min);
+    }
+
+    void saveArrAfterFirstRection(){
+        int[][] array = new int[getCities()][getCities()];    //zmienna tymczasowa przechowująca tablicę odległości
+
+        //kopiowanie tablicy odległości
+        for( int i = 0; i < this.getCities(); i++)
+            for( int j = 0; j < this.getCities(); j++)
+                array[i][j] = getDistance(i,j);
+
+        //pierwsza redukcja macierzy
+        //macierz posiada conajmniej raz 0 w każdym wierszu i kolumnie
+        reduceMatrix(array);
+        arrays.put(0, array);
+    }
+
+    /**
      * Realizacja funkcji ograniczającej.
      * @param from - Węzeł (miasto) od którego rozpoczynamy szacowanie
      * @param print - czy wyświetlić wynik
@@ -324,47 +347,32 @@ public class TSP {
         int boundNumber = 0;
 
         int[][] tempArr = new int[getCities()][getCities()];    //zmienna tymczasowa przechowująca tablicę odległości
+        int[][] arrAfterFirstReduction = new int[getCities()][getCities()];
+        int[][] arrOfLastNodeInPath = new int[getCities()][getCities()];
 
-        //kopiowanie tablicy odległości
-        for( int i = 0; i < this.getCities(); i++)
-            for( int j = 0; j < this.getCities(); j++)
-                tempArr[i][j] = getDistance(i,j);
-
-        //pierwsza redukcja macierzy
-        //macierz posiada conajmniej raz 0 w każdym wierszu i kolumnie
-        reduceMatrix(tempArr);
+        //zapisujemy tablice po pierwszej redukcji
+         arrAfterFirstReduction = arrays.get(0);
 
         //przy pierwszej redukcji koszt startowego węzła jest równy sumie redukcji
         if(costOfStartNode == 0)
             costOfStartNode = sumReduction;
-
-        //zapisujemy tablice po pierwszej redukcji
-        int[][] arrAfterFirstReduction = new int[getCities()][getCities()];
-
-        for( int i = 0; i < this.getCities(); i++)
-            for( int j = 0; j < this.getCities(); j++)
-                arrAfterFirstReduction[i][j] = tempArr[i][j];
 
         //Szacowanie
         for (int k = 0; k < getCities(); k++){
             if(visitCity[k]) continue;  //pomijamy miasto, jeśli było juz odwiedzone
             boundNumber++;
 
+            int[][] arrayToLoad = arrays.get(from);
+
             for( int i = 0; i < this.getCities(); i++)
                 for( int j = 0; j < this.getCities(); j++)
-                    tempArr[i][j] = arrAfterFirstReduction[i][j];
+                    arrOfLastNodeInPath[i][j] = arrayToLoad[i][j];
 
-            int edge = tempArr[from][k];    //zapisujemy koszt przejścia z węzła początkowego do rozpatrywanego
+            for( int i = 0; i < this.getCities(); i++)
+                for( int j = 0; j < this.getCities(); j++)
+                    tempArr[i][j] = arrOfLastNodeInPath[i][j];
 
-            //Jeśli miasto zostało już odwiedzone to nie rozważamy przejść do niego więc ustawiamy odległości z i do niego jako nieskończoność
-            for(int l= 1; l < visitCity.length; l++){
-                if(visitCity[l]){
-                    for (int m= 0; m< getCities(); m++){
-                        tempArr[l][m] = 9999;
-                        tempArr[m][l] = 9999;
-                    }
-                }
-            }
+            int edge = arrAfterFirstReduction[from][k];    //zapisujemy koszt przejścia z węzła początkowego do rozpatrywanego
 
             //Ustawiamy wiersz o indeksie węzła początkowego na nieskończoność
             for (int j= 0; j< getCities(); j++)
@@ -375,13 +383,21 @@ public class TSP {
                 tempArr[j][k] = 9999;
 
             //Ustawiamy odległość z węzła rozpatrywanego do początkowego na nieskończoność
-            tempArr[k][from] = 9999;
+            tempArr[k][0] = 9999;
 
             //redukujemy macierz, aby w każdym wierszu i kolumnie było conajmniej raz 0
             reduceMatrix(tempArr);
 
+            int[][] arrayToRemember = new int[getCities()][getCities()];
+
+            for( int i = 0; i < this.getCities(); i++)
+                for( int j = 0; j < this.getCities(); j++)
+                    arrayToRemember[i][j] = tempArr[i][j];
+
+            arrays.put(k, arrayToRemember);
+
             //Koszt każdego węzła stanowi suma redukcji macierzy, odległość z miasta początkowego do rozpatrywanego i koszt węzła początkowego
-            Node node  = new Node(k+1, (sumReduction + edge + costOfStartNode));
+            Node node  = new Node(k, (sumReduction + edge + costOfStartNode));
             bounds[boundNumber-1] = node;
             if(print){
                 System.out.println("from: " + (from));
@@ -391,7 +407,7 @@ public class TSP {
 
         //Szukamy węzła z minimalnym kosztem, wstawiamy jego numer do ścieżki, oznaczamy miasto jako odwiedzone i dodajemy wagę do ostatecznego kosztu ścieżki.
         Node nodeWithMinCost = nodeWithMinCost(bounds);
-        finalPath[++finalPathIndex] = nodeWithMinCost.getNumber() - 1;
+        finalPath[++finalPathIndex] = nodeWithMinCost.getNumber();
         costOfStartNode = nodeWithMinCost.getCost();
         visitCity[finalPath[finalPathIndex]] = true;
         finalPathDistance += getDistance(from, finalPath[finalPathIndex]);
@@ -399,7 +415,7 @@ public class TSP {
         if(print){
             for (int node: finalPath)
                 System.out.print(node + " ");
-            System.out.println();
+            System.out.println("Current distance: " + finalPathDistance);
         }
     }
 
@@ -408,8 +424,9 @@ public class TSP {
      * @param print - czy wyświetlić wynik
      */
     public void bnBSolution(boolean print){
+        saveArrAfterFirstRection();
         while(getNumOfUnvisitedCities() > 0){
-            expandNodes(finalPath[finalPathIndex], false);
+            expandNodes(finalPath[finalPathIndex], true);
         }
 
         if(print) {
