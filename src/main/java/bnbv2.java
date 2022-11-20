@@ -7,7 +7,7 @@ import java.util.*;
 public class bnbv2
 {
 
-    static int N = 17;
+    static int N = 10;
 
     // final_path[] stores the final solution ie, the
     // path of the salesman.

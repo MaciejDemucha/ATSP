@@ -11,6 +11,7 @@ public class TSP {
     boolean[] visitCity;    //tablica zawierająca informację czy dane miasto zostało odwiedzone
     int cities;             //liczba miast
     int[][] distance;       //macierz odległości między miastami
+    int[][] reducedDistance;       //macierz odległości między miastami
 
     int hamiltonCycle;      //długość cyklu Hamiltona znalezionego w metodzie Brute Force
 
@@ -31,6 +32,8 @@ public class TSP {
     //Zmienne pomocnicze do otrzymania ścieżki przy wywoływaniu permutacji w Brute Force
     //ArrayList<Integer> tempPath = new ArrayList();
     int[] tempPath;
+
+    ArrayList<Node2> nodes = new ArrayList<>();
 
 
     public int getCities() {
@@ -104,6 +107,9 @@ public class TSP {
 
         tsp.setMatrix(matrix);
         tsp.setCities(size);
+        for (int i = 0; i < tsp.getCities(); i++)
+            for (int j = 0; j < tsp.getCities(); j++)
+                tsp.reducedDistance[i][j] = tsp.getDistance(i, j);
         //Tablica visitCity ma długość równą liczbie miast
         tsp.visitCity = new boolean[tsp.getCities()];
 
@@ -164,6 +170,11 @@ public class TSP {
             //Pierwszy element ścieżki przyjmuje wartość numeru miasta początkowego
             tsp.finalPath[0] = 0;
             tsp.bounds = new Node[tsp.getCities()][tsp.getCities()];
+            tsp.reducedDistance = new int[tsp.getCities()][tsp.getCities()];
+
+            for (int i = 0; i < tsp.getCities(); i++)
+                for (int j = 0; j < tsp.getCities(); j++)
+                    tsp.reducedDistance[i][j] = tsp.getDistance(i, j);
         }
         catch (FileNotFoundException e){
             System.out.println("Nie odnaleziono pliku " + filePath);
@@ -262,6 +273,16 @@ public class TSP {
         return min;
     }
 
+    Integer firstMinRow(ArrayList<Integer> arr)
+    {
+        int min = 9999;
+        for (int k = 0; k < getCities(); k++){
+            if (arr.get(k) < min && arr.get(k) != 0)
+                min = arr.get(k);
+        }
+        return min;
+    }
+
     /**
      * Funkcja zwracająca najmniejszą liczbę w kolumnie macierzy. Zakres liczb 9001 - 9999 traktujemy jako nieskończoność, czyli brak przejścia między miastami.
      * @param i   - indeks kolumny
@@ -354,10 +375,6 @@ public class TSP {
     void expandNodes(int from, int level, boolean print){
 
         int[][] tempArr = new int[getCities()][getCities()];    //zmienna tymczasowa przechowująca tablicę odległości
-        int[][] arrAfterFirstReduction;
-
-        //zapisujemy tablice po pierwszej redukcji
-         arrAfterFirstReduction = saveArrAfterFirstRection();
 
         //przy pierwszej redukcji koszt startowego węzła jest równy sumie redukcji
         if(costOfStartNode == 0)
@@ -369,7 +386,7 @@ public class TSP {
 
             int[][] arrayToLoad;
             if(level == 0)
-                arrayToLoad = arrAfterFirstReduction;
+                arrayToLoad = reducedDistance;
             else{
                 arrayToLoad = bounds[level][from-1].getMatrix();
             }
@@ -378,7 +395,7 @@ public class TSP {
                 for( int j = 0; j < this.getCities(); j++)
                     tempArr[i][j] = arrayToLoad[i][j];
 
-            int edge = arrAfterFirstReduction[from][k];    //zapisujemy koszt przejścia z węzła początkowego do rozpatrywanego
+            int edge = reducedDistance[from][k];    //zapisujemy koszt przejścia z węzła początkowego do rozpatrywanego
 
             //Ustawiamy wiersz o indeksie węzła początkowego na nieskończoność
             for (int j= 0; j< getCities(); j++)
@@ -415,7 +432,6 @@ public class TSP {
 
         //Szukamy węzła z minimalnym kosztem, wstawiamy jego numer do ścieżki, oznaczamy miasto jako odwiedzone i dodajemy wagę do ostatecznego kosztu ścieżki.
         Node nodeWithMinCost = nodeWithMinCost(bounds);
-        //nodeWithMinCost = pq.poll();
         finalPathv2 = nodeWithMinCost.getPath();
         costOfStartNode = nodeWithMinCost.getCost();
 
@@ -439,7 +455,7 @@ public class TSP {
      * @param print - czy wyświetlić wynik
      */
     public void bnBSolution(boolean print){
-        //saveArrAfterFirstRection();
+        reduceMatrix(reducedDistance);
         int level = 0;
 
         while(getNumOfUnvisitedCities() > 0){
@@ -466,11 +482,87 @@ public class TSP {
         sumReduction = 0;
     }
 
+    int findHamiltonianCyclev2(int[][] distance, boolean[] visitCity, int currPos, int cities, int count, int cost, int hamiltonianCycle) {
+        //Sprawdzenie czy liczba przejść równa się liczbie miast.
+        //Jeśli tak, to sprawdzamy co ma mniejsza wagę: poprzednio znaleziony cykl czy ten obecny składający się z
+        //przebytej ścieżki i powrotu do początkowego węzła.
+        if (count == cities && distance[currPos][0] < 9999) {
+            tempPath[tempPath.length - 2] = currPos;
+
+            if(hamiltonianCycle > cost + distance[currPos][0]){
+                hamiltonianCycle = cost + distance[currPos][0];
+
+                for(int j = 0; j < getCities(); j++){
+                    finalPath[j] = tempPath[j];
+                }
+            }
+
+            return hamiltonianCycle;
+        }
+
+        //Przeszukiwanie w głąb każdego miasta
+        for (int i = 0; i < cities; i++) {
+            if (!visitCity[i] && distance[currPos][i] < 9999) {
+                tempPath[count -1] = currPos;
+
+                //Oznaczamy aktualne miasto jako odwiedzone
+                visitCity[i] = true;
+                /*int bound = 0;
+                for(int city = 0; city < getCities(); i++){
+                    if(!visitCity[city]){
+                        //bound += getDistance(currPos, city);
+                    }
+                }
+                System.out.println(bound);
+                if (bound > sumReduction) continue;*/
+                if(i == 1) continue;
+
+                //rekurencyjnie sprawdzamy sąsiadów odwiedzonego miasta
+                hamiltonianCycle = findHamiltonianCycle(distance, visitCity, i, cities, count + 1, cost + distance[currPos][i], hamiltonianCycle);
+
+                //po zakończeniu przeszukiwania w głąb danego przypadku oznaczamy miasto jako nieodwiedzone, ponieważ procedura będzie powtarzana dla każdego miasta
+                visitCity[i] = false;
+            }
+        }
+        return hamiltonianCycle;
+    }
+    Integer calculateBound(){
+        int bound = 0;
+
+        for(int i = 0; i < getCities(); i++){
+            bound += firstMinRow(nodes.get(i).getChildren());
+        }
+        return bound;
+    }
+
+    int calculateFirstBound(){
+        saveArrAfterFirstRection();
+        return sumReduction;
+    }
     void branchAndBound(){
+        //Node2 root = new Node2(0,0);
         Queue<Node> pq = new PriorityQueue<>();
         int[][] startMatrix = getMatrix().clone();
         int[] path = new int[getCities() + 1];
         reduceMatrix(startMatrix);
         //Node root = new Node(0, sumReduction, startMatrix, path,0);
+    }
+
+    public void bruteForcev2(boolean print){
+        calculateFirstBound();
+        hamiltonCycle = findHamiltonianCyclev2(distance, visitCity, 0, cities, 1, 0, hamiltonCycle);
+        if(print){
+            System.out.println("Distance: " + hamiltonCycle);
+            System.out.print("Path: ");
+            for (Integer i: finalPath) {
+                System.out.print(i + " ");
+            }
+            System.out.println();
+        }
+
+        //Reset zmiennych po zakończeniu algorytmu
+        Arrays.fill(visitCity, false);
+        Arrays.fill(finalPath, 0);
+        visitCity[0] = true;
     }
 }

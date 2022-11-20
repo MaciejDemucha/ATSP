@@ -2,6 +2,8 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+        //TSP tsp = TSP.readFromFileScanner("test5.txt");
+        //tsp.bruteForcev2(true);
         menu();
         //test();
         //measurements();
