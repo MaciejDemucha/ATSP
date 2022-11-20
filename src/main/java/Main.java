@@ -1,10 +1,28 @@
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         menu();
+        //test();
         //measurements();
+    }
+
+    static void test(){
+        Queue<Node> pq = new PriorityQueue<>(new NodeComparator());
+        int[][] matrix = new int[2][2];
+        ArrayList<Integer> path = new ArrayList<>();
+        Node node1 = new Node(0,10,matrix,path,0);
+        Node node2 = new Node(0,5,matrix,path,0);
+        Node node3 = new Node(0,23,matrix,path,0);
+        Node node4 = new Node(0,11,matrix,path,0);
+        pq.add(node1);
+        pq.add(node2);
+        pq.add(node3);
+        pq.add(node4);
+        while (!pq.isEmpty()){
+            Node node = pq.poll();
+            System.out.println(node.getCost());
+        }
     }
 
     static void measurements(){
@@ -28,7 +46,8 @@ public class Main {
         Scanner scannerFile = new Scanner(System.in);
         boolean shouldContinue = true;
         int userChoice = 0;
-        String fileName = "";
+        String fileName = "test5.txt";
+        tsp = TSP.readFromFileScanner(fileName);
         while(shouldContinue){
             System.out.println("\nZaładowany plik: " + fileName + "\n");
             System.out.println("Wybierz opcję: ");

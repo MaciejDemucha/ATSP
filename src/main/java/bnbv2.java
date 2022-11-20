@@ -224,7 +224,7 @@ public class bnbv2
                 {15, 35, 0, 30},
                 {20, 25, 30, 0} };
 
-        adj = readFromFileScanner("tsp_14_db.txt");
+        adj = readFromFileScanner("tsp_10b.txt");
         N = adj.length;
         for(int i = 0; i < N; i++){
             for(int j = 0; j < N; j++){
