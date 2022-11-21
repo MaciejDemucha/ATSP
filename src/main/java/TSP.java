@@ -500,16 +500,19 @@ public class TSP {
         Result result = new Result();
         LinkedList<Node2> queue = new LinkedList<>();
         int permutationSize = nodes.length;
-        int sumOfDistances = 0;
         queue.add(root);
 
         while (!queue.isEmpty()){
             Node2 v = copyNode(queue.getFirst());
             queue.remove(0);
-            //if(v.number != 0 && v.lowerBound > v.parent.lowerBound)
-               // continue;
+            if(v.number != 0)
+            System.out.print(v.lowerBound + " " + v.parent.lowerBound);
+            if(v.number != 0 && v.lowerBound > v.parent.lowerBound)
+                System.out.println(" tak ");
+            else System.out.println();
 
             if(v.visitedSoFar.size() == permutationSize){
+                System.out.println(v.visitedSoFar);
                 int distance = calculateCost(v.visitedSoFar);
                 if(distance < result.cost){
                     result.cost = distance;
@@ -520,14 +523,13 @@ public class TSP {
             for (int i = 0; i < permutationSize; i++) {
                 if(!v.visitedSoFar.contains(nodes[i].number)){
                     Node2 w = copyNode(nodes[i]);
-                    //sumOfDistances += getDistance(v.number, w.number);
                     w.setVisitedSoFar(v.visitedSoFar);
                     w.visitedSoFar.add(w.number);
-                   // w.parent = v;
+                    w.parent = v;
+                    w.lowerBound = calculateBound(w);
                     queue.add(w);
                 }
             }
-            //if(v.number != 0) v.lowerBound = sumOfDistances;
         }
         return result;
     }
@@ -566,6 +568,17 @@ public class TSP {
         }
         distance += getDistance(path.get(size), 0);
         return distance;
+    }
+
+    int calculateBound(Node2 node){
+        int bound = 0;
+        int size = getCities();
+        for(int i = 0; i < size; i++){
+            if(!node.visitedSoFar.contains(i)){
+                bound += getDistance(node.number, i);
+            }
+        }
+        return bound;
     }
 
 

@@ -11,6 +11,7 @@ public class Node2 {
     }
     public void setVisitedSoFar(LinkedList<Integer> array){
         this.visitedSoFar = new LinkedList<>(array);
+        //this.visitedSoFar = array;
     }
 
 }
