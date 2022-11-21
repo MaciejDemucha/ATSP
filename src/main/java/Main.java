@@ -9,7 +9,7 @@ public class Main {
 
     static void test(){
 
-        String fileName = "tsp_10b.txt";
+        String fileName = "tsp_14_db.txt";
        TSP tsp = TSP.readFromFileScanner(fileName);
        //tsp.bruteForce(true);
         assert tsp != null;

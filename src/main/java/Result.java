@@ -1,11 +1,8 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Result {
-    public int cost;
-    public ArrayList<Integer> path;
+    public int cost = 9999;
+    public LinkedList<Integer> path;
 
-    public Result(int cost, ArrayList<Integer> path) {
-        this.cost = cost;
-        this.path = path;
-    }
 }

@@ -124,7 +124,15 @@ public class TSP {
 
         tsp.tempPath = new int[tsp.getCities() + 1];
         tsp.bounds = new Node[tsp.getCities()][tsp.getCities()];
+        tsp.reducedDistance = new int[tsp.getCities()][tsp.getCities()];
+
         tsp.nodes = new Node2[tsp.getCities()];
+        tsp.addNodes();
+
+        for (int i = 0; i < tsp.getCities(); i++)
+            for (int j = 0; j < tsp.getCities(); j++)
+                tsp.reducedDistance[i][j] = tsp.getDistance(i, j);
+        tsp.reduceMatrix(tsp.reducedDistance);
 
         return tsp;
     }
@@ -172,12 +180,15 @@ public class TSP {
             //Pierwszy element ścieżki przyjmuje wartość numeru miasta początkowego
             tsp.finalPath[0] = 0;
             tsp.bounds = new Node[tsp.getCities()][tsp.getCities()];
-            tsp.nodes = new Node2[tsp.getCities()];
             tsp.reducedDistance = new int[tsp.getCities()][tsp.getCities()];
+
+            tsp.nodes = new Node2[tsp.getCities()];
+            tsp.addNodes();
 
             for (int i = 0; i < tsp.getCities(); i++)
                 for (int j = 0; j < tsp.getCities(); j++)
                     tsp.reducedDistance[i][j] = tsp.getDistance(i, j);
+            tsp.reduceMatrix(tsp.reducedDistance);
         }
         catch (FileNotFoundException e){
             System.out.println("Nie odnaleziono pliku " + filePath);
@@ -486,39 +497,44 @@ public class TSP {
     }
 
     Result bfs(Node2 root){
-        Result result = new Result(9999, new ArrayList<>());
+        Result result = new Result();
         LinkedList<Node2> queue = new LinkedList<>();
         int permutationSize = nodes.length;
+        int sumOfDistances = 0;
         queue.add(root);
 
         while (!queue.isEmpty()){
-            Node2 v = copyNode(queue.get(0));
+            Node2 v = copyNode(queue.getFirst());
             queue.remove(0);
+            //if(v.number != 0 && v.lowerBound > v.parent.lowerBound)
+               // continue;
 
-            if(v.visited.size() == permutationSize){
-                int distance = calculateCost(v.visited);
+            if(v.visitedSoFar.size() == permutationSize){
+                int distance = calculateCost(v.visitedSoFar);
                 if(distance < result.cost){
                     result.cost = distance;
-                    result.path = v.visited;
+                    result.path = v.visitedSoFar;
                 }
             }
 
             for (int i = 0; i < permutationSize; i++) {
-                if(!v.visited.contains(nodes[i].number)){
+                if(!v.visitedSoFar.contains(nodes[i].number)){
                     Node2 w = copyNode(nodes[i]);
-                    w.setVisited(v.visited);
-                    w.visited.add(w.number);
+                    //sumOfDistances += getDistance(v.number, w.number);
+                    w.setVisitedSoFar(v.visitedSoFar);
+                    w.visitedSoFar.add(w.number);
                    // w.parent = v;
                     queue.add(w);
                 }
             }
+            //if(v.number != 0) v.lowerBound = sumOfDistances;
         }
         return result;
     }
 
     void doBFS(){
-        addNodes();
         Node2 root = nodes[0];
+        root.lowerBound = sumReduction;
         Result result = bfs(root);
         System.out.println("Path: " + result.path);
         System.out.println("Cost: " + result.cost);
@@ -529,20 +545,20 @@ public class TSP {
         for (int i = 0; i < size; i++){
             Node2 node = new Node2();
             node.number = i;
-           // node.parent = null;
             nodes[i] = node;
         }
     }
 
     public static Node2 copyNode( Node2 other ) {
         Node2 newNode = new Node2();
-        //newNode.parent = other.parent;
         newNode.number = other.number;
-        newNode.setVisited(other.visited);
+        newNode.parent = other.parent;
+        newNode.lowerBound = other.lowerBound;
+        newNode.setVisitedSoFar(other.visitedSoFar);
         return newNode;
     }
 
-    int calculateCost(ArrayList<Integer> path){
+    int calculateCost(LinkedList<Integer> path){
         int distance = 0;
         int size = path.size()-1;
         for(int i = 0; i < size; i++){
