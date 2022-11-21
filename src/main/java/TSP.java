@@ -33,7 +33,8 @@ public class TSP {
     //ArrayList<Integer> tempPath = new ArrayList();
     int[] tempPath;
 
-    ArrayList<Node2> nodes = new ArrayList<>();
+    //ArrayList<Node2> nodes = new ArrayList<>();
+    Node2[] nodes;
 
 
     public int getCities() {
@@ -123,6 +124,7 @@ public class TSP {
 
         tsp.tempPath = new int[tsp.getCities() + 1];
         tsp.bounds = new Node[tsp.getCities()][tsp.getCities()];
+        tsp.nodes = new Node2[tsp.getCities()];
 
         return tsp;
     }
@@ -170,6 +172,7 @@ public class TSP {
             //Pierwszy element ścieżki przyjmuje wartość numeru miasta początkowego
             tsp.finalPath[0] = 0;
             tsp.bounds = new Node[tsp.getCities()][tsp.getCities()];
+            tsp.nodes = new Node2[tsp.getCities()];
             tsp.reducedDistance = new int[tsp.getCities()][tsp.getCities()];
 
             for (int i = 0; i < tsp.getCities(); i++)
@@ -214,8 +217,8 @@ public class TSP {
      * @param cost - koszt aktualnie przebytej ścieżki
      * @param hamiltonianCycle - waga znalezionego cyklu Hamiltona
      */
-     int findHamiltonianCycle(int[][] distance, boolean[] visitCity, int currPos, int cities, int count, int cost, int hamiltonianCycle) {
-         //Sprawdzenie czy liczba przejść równa się liczbie miast.
+    int findHamiltonianCycle(int[][] distance, boolean[] visitCity, int currPos, int cities, int count, int cost, int hamiltonianCycle) {
+        //Sprawdzenie czy liczba przejść równa się liczbie miast.
         //Jeśli tak, to sprawdzamy co ma mniejsza wagę: poprzednio znaleziony cykl czy ten obecny składający się z
         //przebytej ścieżki i powrotu do początkowego węzła.
         if (count == cities && distance[currPos][0] < 9999) {
@@ -235,7 +238,7 @@ public class TSP {
         //Przeszukiwanie w głąb każdego miasta
         for (int i = 0; i < cities; i++) {
             if (!visitCity[i] && distance[currPos][i] < 9999) {
-                    tempPath[count -1] = currPos;
+                tempPath[count -1] = currPos;
 
                 //Oznaczamy aktualne miasto jako odwiedzone
                 visitCity[i] = true;
@@ -340,12 +343,12 @@ public class TSP {
         for (int i = 0; i < arr.length; i++) {
             for (int j = 0; j < arr.length; j++)
                 if(arr[i][j] != null)
-            if (arr[i][j].getCost() < min && !arr[i][j].expanded) {
-                min = arr[i][j].getCost();
+                    if (arr[i][j].getCost() < min && !arr[i][j].expanded) {
+                        min = arr[i][j].getCost();
 
-                saveI = i;
-                saveJ = j;
-            }
+                        saveI = i;
+                        saveJ = j;
+                    }
 
         }
         arr[saveI][saveJ].expanded = true;
@@ -417,7 +420,7 @@ public class TSP {
                 for( int j = 0; j < this.getCities(); j++)
                     arrayToRemember[i][j] = tempArr[i][j];
 
-           ArrayList<Integer> pathToRemember = new ArrayList<>(finalPathv2);
+            ArrayList<Integer> pathToRemember = new ArrayList<>(finalPathv2);
 
             pathToRemember.add(k);
             //Koszt każdego węzła stanowi suma redukcji macierzy, odległość z miasta początkowego do rozpatrywanego i koszt węzła początkowego
@@ -482,87 +485,73 @@ public class TSP {
         sumReduction = 0;
     }
 
-    int findHamiltonianCyclev2(int[][] distance, boolean[] visitCity, int currPos, int cities, int count, int cost, int hamiltonianCycle) {
-        //Sprawdzenie czy liczba przejść równa się liczbie miast.
-        //Jeśli tak, to sprawdzamy co ma mniejsza wagę: poprzednio znaleziony cykl czy ten obecny składający się z
-        //przebytej ścieżki i powrotu do początkowego węzła.
-        if (count == cities && distance[currPos][0] < 9999) {
-            tempPath[tempPath.length - 2] = currPos;
+    Result bfs(Node2 root){
+        Result result = new Result(9999, new ArrayList<>());
+        LinkedList<Node2> queue = new LinkedList<>();
+        int permutationSize = nodes.length;
+        queue.add(root);
 
-            if(hamiltonianCycle > cost + distance[currPos][0]){
-                hamiltonianCycle = cost + distance[currPos][0];
+        while (!queue.isEmpty()){
+            Node2 v = copyNode(queue.get(0));
+            queue.remove(0);
 
-                for(int j = 0; j < getCities(); j++){
-                    finalPath[j] = tempPath[j];
+            if(v.visited.size() == permutationSize){
+                int distance = calculateCost(v.visited);
+                if(distance < result.cost){
+                    result.cost = distance;
+                    result.path = v.visited;
                 }
             }
 
-            return hamiltonianCycle;
-        }
-
-        //Przeszukiwanie w głąb każdego miasta
-        for (int i = 0; i < cities; i++) {
-            if (!visitCity[i] && distance[currPos][i] < 9999) {
-                tempPath[count -1] = currPos;
-
-                //Oznaczamy aktualne miasto jako odwiedzone
-                visitCity[i] = true;
-                /*int bound = 0;
-                for(int city = 0; city < getCities(); i++){
-                    if(!visitCity[city]){
-                        //bound += getDistance(currPos, city);
-                    }
+            for (int i = 0; i < permutationSize; i++) {
+                if(!v.visited.contains(nodes[i].number)){
+                    Node2 w = copyNode(nodes[i]);
+                    w.setVisited(v.visited);
+                    w.visited.add(w.number);
+                   // w.parent = v;
+                    queue.add(w);
                 }
-                System.out.println(bound);
-                if (bound > sumReduction) continue;*/
-                if(i == 1) continue;
-
-                //rekurencyjnie sprawdzamy sąsiadów odwiedzonego miasta
-                hamiltonianCycle = findHamiltonianCycle(distance, visitCity, i, cities, count + 1, cost + distance[currPos][i], hamiltonianCycle);
-
-                //po zakończeniu przeszukiwania w głąb danego przypadku oznaczamy miasto jako nieodwiedzone, ponieważ procedura będzie powtarzana dla każdego miasta
-                visitCity[i] = false;
             }
         }
-        return hamiltonianCycle;
+        return result;
     }
-    Integer calculateBound(){
-        int bound = 0;
 
-        for(int i = 0; i < getCities(); i++){
-            bound += firstMinRow(nodes.get(i).getChildren());
+    void doBFS(){
+        addNodes();
+        Node2 root = nodes[0];
+        Result result = bfs(root);
+        System.out.println("Path: " + result.path);
+        System.out.println("Cost: " + result.cost);
+    }
+
+    void addNodes(){
+        int size = nodes.length;
+        for (int i = 0; i < size; i++){
+            Node2 node = new Node2();
+            node.number = i;
+           // node.parent = null;
+            nodes[i] = node;
         }
-        return bound;
     }
 
-    int calculateFirstBound(){
-        saveArrAfterFirstRection();
-        return sumReduction;
-    }
-    void branchAndBound(){
-        //Node2 root = new Node2(0,0);
-        Queue<Node> pq = new PriorityQueue<>();
-        int[][] startMatrix = getMatrix().clone();
-        int[] path = new int[getCities() + 1];
-        reduceMatrix(startMatrix);
-        //Node root = new Node(0, sumReduction, startMatrix, path,0);
+    public static Node2 copyNode( Node2 other ) {
+        Node2 newNode = new Node2();
+        //newNode.parent = other.parent;
+        newNode.number = other.number;
+        newNode.setVisited(other.visited);
+        return newNode;
     }
 
-    public void bruteForcev2(boolean print){
-        calculateFirstBound();
-        hamiltonCycle = findHamiltonianCyclev2(distance, visitCity, 0, cities, 1, 0, hamiltonCycle);
-        if(print){
-            System.out.println("Distance: " + hamiltonCycle);
-            System.out.print("Path: ");
-            for (Integer i: finalPath) {
-                System.out.print(i + " ");
-            }
-            System.out.println();
+    int calculateCost(ArrayList<Integer> path){
+        int distance = 0;
+        int size = path.size()-1;
+        for(int i = 0; i < size; i++){
+            distance += getDistance(path.get(i), path.get(i+1));
         }
-
-        //Reset zmiennych po zakończeniu algorytmu
-        Arrays.fill(visitCity, false);
-        Arrays.fill(finalPath, 0);
-        visitCity[0] = true;
+        distance += getDistance(path.get(size), 0);
+        return distance;
     }
+
+
+
 }

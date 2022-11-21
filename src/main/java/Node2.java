@@ -1,37 +1,23 @@
 import java.util.ArrayList;
 
 public class Node2 {
-    private int lowerBound;
-    private int number;
-    private ArrayList<Integer> children;
 
-    public Node2(int lowerBound, int number, ArrayList<Integer> children) {
-        this.lowerBound = lowerBound;
-        this.number = number;
-        this.children = children;
-    }
-
-    public int getLowerBound() {
-        return lowerBound;
-    }
-
-    public void setLowerBound(int lowerBound) {
-        this.lowerBound = lowerBound;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(int number) {
+    public Node2(/*Node2 parent,*/ int number) {
+       // this.parent = parent;
         this.number = number;
     }
 
-    public ArrayList<Integer> getChildren() {
-        return children;
+    public Node2(){
+        visited.add(0);
     }
 
-    public void setChildren(ArrayList<Integer> children) {
-        this.children = children;
+   // public Node2 parent;
+    public int number;
+
+    public ArrayList<Integer> visited = new ArrayList<>();
+
+    public void setVisited(ArrayList<Integer> array){
+        this.visited = new ArrayList<>(array);
     }
+
 }
