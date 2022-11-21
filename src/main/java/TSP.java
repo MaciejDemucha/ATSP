@@ -578,6 +578,7 @@ public class TSP {
                 bound += getDistance(node.number, i);
             }
         }
+        bound -= getDistance(node.number, node.parent.number);
         return bound;
     }
 
