@@ -499,6 +499,7 @@ public class TSP {
     //BFS
 
     Result bfs(Node2 root){
+        System.out.println(sumReduction);
         LinkedList<Integer> path = new LinkedList<>();
         LinkedList<Node2> queue = new LinkedList<>();
         int permutationSize = nodes.length;
@@ -508,8 +509,7 @@ public class TSP {
         queue.add(root);
 
         while (!queue.isEmpty()){
-            Node2 v = copyNode(queue.getFirst());
-            queue.remove(0);
+            Node2 v = queue.poll();
 
             if(v.level == permutationSize-1){
 
@@ -528,6 +528,7 @@ public class TSP {
                     w.level = v.level + 1;
                     w.parent = v;
                     w.distanceSoFar = v.distanceSoFar + getDistance(v.number, w.number);
+                    if(w.distanceSoFar <= 1.5*sumReduction)
                     queue.add(w);
                 }
             }
