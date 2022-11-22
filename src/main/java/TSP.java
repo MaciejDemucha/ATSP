@@ -496,49 +496,86 @@ public class TSP {
         sumReduction = 0;
     }
 
+    //BFS
+
     Result bfs(Node2 root){
-        Result result = new Result();
+        LinkedList<Integer> path = new LinkedList<>();
         LinkedList<Node2> queue = new LinkedList<>();
         int permutationSize = nodes.length;
+        Result result = new Result();
+        result.path = new int[permutationSize];
+        int distance;
         queue.add(root);
 
         while (!queue.isEmpty()){
             Node2 v = copyNode(queue.getFirst());
             queue.remove(0);
-            if(v.number != 0)
-            System.out.print(v.lowerBound + " " + v.parent.lowerBound);
-            if(v.number != 0 && v.lowerBound > v.parent.lowerBound)
-                System.out.println(" tak ");
-            else System.out.println();
 
-            if(v.visitedSoFar.size() == permutationSize){
-                System.out.println(v.visitedSoFar);
-                int distance = calculateCost(v.visitedSoFar);
+            if(v.level == permutationSize-1){
+
+                path = createPath(v, path);
+                distance = v.distanceSoFar + getDistance(v.number, 0);
                 if(distance < result.cost){
                     result.cost = distance;
-                    result.path = v.visitedSoFar;
+                    copyPathToResult(result, path);
                 }
             }
-
+                nodes[v.number].explored = true;
+            setExploredNodes(v);
             for (int i = 0; i < permutationSize; i++) {
-                if(!v.visitedSoFar.contains(nodes[i].number)){
+                if(!nodes[i].explored){
                     Node2 w = copyNode(nodes[i]);
-                    w.setVisitedSoFar(v.visitedSoFar);
-                    w.visitedSoFar.add(w.number);
+                    w.level = v.level + 1;
                     w.parent = v;
-                    w.lowerBound = calculateBound(w);
+                    w.distanceSoFar = v.distanceSoFar + getDistance(v.number, w.number);
                     queue.add(w);
                 }
             }
+            allNotExplored();
         }
         return result;
+    }
+
+    LinkedList<Integer> createPath(Node2 endNode, LinkedList<Integer> path){
+        path.clear();
+        path = addParents(endNode, path);
+        path.addFirst(0);
+        return path;
+    }
+
+    LinkedList<Integer> addParents(Node2 endNode, LinkedList<Integer> path){
+        if(endNode.parent != null){
+            path.add(0, endNode.number);
+                addParents(endNode.parent, path);
+        }
+        return path;
+    }
+
+    void copyPathToResult(Result result, LinkedList<Integer> path){
+        int size = path.size();
+        for(int i = 0; i < size; i++){
+            result.path[i] = path.get(i);
+        }
+    }
+
+    void setExploredNodes(Node2 node){
+        if(node.parent != null){
+            nodes[node.parent.number].explored = true;
+            setExploredNodes(node.parent);
+        }
+    }
+
+    void allNotExplored(){
+        int size = nodes.length;
+        for(int i = 0; i < size; i++)
+            nodes[i].explored = false;
     }
 
     void doBFS(){
         Node2 root = nodes[0];
         root.lowerBound = sumReduction;
         Result result = bfs(root);
-        System.out.println("Path: " + result.path);
+        System.out.println("Path: " + Arrays.toString(result.path));
         System.out.println("Cost: " + result.cost);
     }
 
@@ -547,6 +584,7 @@ public class TSP {
         for (int i = 0; i < size; i++){
             Node2 node = new Node2();
             node.number = i;
+            node.level = 0;
             nodes[i] = node;
         }
     }
@@ -556,21 +594,13 @@ public class TSP {
         newNode.number = other.number;
         newNode.parent = other.parent;
         newNode.lowerBound = other.lowerBound;
-        newNode.setVisitedSoFar(other.visitedSoFar);
+        newNode.level = other.level;
+        newNode.distanceSoFar = other.distanceSoFar;
+        newNode.explored = other.explored;
         return newNode;
     }
 
-    int calculateCost(LinkedList<Integer> path){
-        int distance = 0;
-        int size = path.size()-1;
-        for(int i = 0; i < size; i++){
-            distance += getDistance(path.get(i), path.get(i+1));
-        }
-        distance += getDistance(path.get(size), 0);
-        return distance;
-    }
-
-    int calculateBound(Node2 node){
+    /*int calculateBound(Node2 node){
         int bound = 0;
         int size = getCities();
         for(int i = 0; i < size; i++){
@@ -580,7 +610,7 @@ public class TSP {
         }
         bound -= getDistance(node.number, node.parent.number);
         return bound;
-    }
+    }*/
 
 
 
