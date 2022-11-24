@@ -11,30 +11,16 @@ public class TSP {
     boolean[] visitCity;    //tablica zawierająca informację czy dane miasto zostało odwiedzone
     int cities;             //liczba miast
     int[][] distance;       //macierz odległości między miastami
-    int[][] reducedDistance;       //macierz odległości między miastami
 
     int hamiltonCycle;      //długość cyklu Hamiltona znalezionego w metodzie Brute Force
 
-    //Branch and Bound
-    int sumReduction = 0;   //Suma liczb, które odejmowalismy od poszczególnych wierszy i kolumn w metodzie podziałui ograniczeń
-    int costOfStartNode = 0;    //koszt węzła startowego w poszczególnych iteracjach metody podziału i ograniczeń
-    Node[][] bounds;              //Tablica szacowanych kosztów stanowiących kryterium wyboru następnego węzła
-    Queue<Node> pq = new PriorityQueue<>(new NodeComparator());
-
     int[] finalPath;           //tablica zawierająca numery kolejnych miast w najkrótszej ścieżce
-    ArrayList<Integer> finalPathv2 = new ArrayList<Integer>(){
-        {
-            add(0);
-        }
-    };
-    int finalPathDistance = 0;  //waga znalezionej ścieżki
+
 
     //Zmienne pomocnicze do otrzymania ścieżki przy wywoływaniu permutacji w Brute Force
-    //ArrayList<Integer> tempPath = new ArrayList();
     int[] tempPath;
 
-    //ArrayList<Node2> nodes = new ArrayList<>();
-    Node2[] nodes;
+    Node[] nodes;
 
 
     public int getCities() {
@@ -75,23 +61,6 @@ public class TSP {
         }
     }
 
-    public static void printArray(int [][] arr){
-        System.out.println(arr.length);
-        for( int i = 0; i < arr.length; i++){
-            for( int j = 0; j < arr.length; j++)
-                System.out.print(arr[i][j] + ", ");
-            System.out.print("\n");
-        }
-    }
-
-    /** Funkcja zwracająca liczbę nieodwiedzonych miast */
-    int getNumOfUnvisitedCities(){
-        int count = 0;
-        for (boolean visited: visitCity) {
-            if(!visited) count++;
-        }
-        return count;
-    }
 
     /**
      * Tworzy losową macierz odległości i ustawia ją.
@@ -101,16 +70,14 @@ public class TSP {
         TSP tsp = new TSP();
         Random random = new Random();
         int[][] matrix = new int[size][size];
-        int upperbound = 300;
+        int upperbound = 50;
         for(int i=0; i<size; i++)
             for(int j=0; j<size; j++)
-                matrix[i][j] = random.nextInt(upperbound) + 1; //odległość z zakresu 1-300
+                matrix[i][j] = random.nextInt(upperbound) + 1; //odległość z zakresu 1-50
 
         tsp.setMatrix(matrix);
         tsp.setCities(size);
-        for (int i = 0; i < tsp.getCities(); i++)
-            for (int j = 0; j < tsp.getCities(); j++)
-                tsp.reducedDistance[i][j] = tsp.getDistance(i, j);
+
         //Tablica visitCity ma długość równą liczbie miast
         tsp.visitCity = new boolean[tsp.getCities()];
 
@@ -123,16 +90,9 @@ public class TSP {
         tsp.finalPath[0] = 0;
 
         tsp.tempPath = new int[tsp.getCities() + 1];
-        tsp.bounds = new Node[tsp.getCities()][tsp.getCities()];
-        tsp.reducedDistance = new int[tsp.getCities()][tsp.getCities()];
 
-        tsp.nodes = new Node2[tsp.getCities()];
+        tsp.nodes = new Node[tsp.getCities()];
         tsp.addNodes();
-
-        for (int i = 0; i < tsp.getCities(); i++)
-            for (int j = 0; j < tsp.getCities(); j++)
-                tsp.reducedDistance[i][j] = tsp.getDistance(i, j);
-        tsp.reduceMatrix(tsp.reducedDistance);
 
         return tsp;
     }
@@ -160,7 +120,7 @@ public class TSP {
                     for( int j = 0; j < tsp.getCities(); j++){
                         if (scanner.hasNextInt()){
                             tsp.setDistance(i, j, scanner.nextInt());
-                            if(tsp.getDistance(i, j) == 0) tsp.setDistance(i, j, 9999);
+                            if(/*tsp.getDistance(i, j) == 0*/ i==j) tsp.setDistance(i, j, 9999);
                         }
 
                         else
@@ -179,16 +139,10 @@ public class TSP {
             tsp.tempPath = new int[tsp.getCities() + 1];
             //Pierwszy element ścieżki przyjmuje wartość numeru miasta początkowego
             tsp.finalPath[0] = 0;
-            tsp.bounds = new Node[tsp.getCities()][tsp.getCities()];
-            tsp.reducedDistance = new int[tsp.getCities()][tsp.getCities()];
 
-            tsp.nodes = new Node2[tsp.getCities()];
+            tsp.nodes = new Node[tsp.getCities()];
             tsp.addNodes();
 
-            for (int i = 0; i < tsp.getCities(); i++)
-                for (int j = 0; j < tsp.getCities(); j++)
-                    tsp.reducedDistance[i][j] = tsp.getDistance(i, j);
-            tsp.reduceMatrix(tsp.reducedDistance);
         }
         catch (FileNotFoundException e){
             System.out.println("Nie odnaleziono pliku " + filePath);
@@ -205,11 +159,7 @@ public class TSP {
         hamiltonCycle = findHamiltonianCycle(distance, visitCity, 0, cities, 1, 0, hamiltonCycle);
         if(print){
             System.out.println("Distance: " + hamiltonCycle);
-            System.out.print("Path: ");
-            for (Integer i: finalPath) {
-                System.out.print(i + " ");
-            }
-            System.out.println();
+            System.out.println("Path: " + Arrays.toString(finalPath));
         }
 
         //Reset zmiennych po zakończeniu algorytmu
@@ -266,250 +216,82 @@ public class TSP {
 
     //Branch and Bound
 
+    int greedy(){
+        int size = getCities() - 1;
+        int count = 0;
+        int cityNumber = 0;
+        int distance = 0;
+        int[] min = new int[2];
+        nodes[0].explored = true;
+        while(count < size){
+            min = firstMinRow(cityNumber, getMatrix(), true);
+            distance += min[1];
+            cityNumber = min[0];
+            count++;
+        }
+
+        distance += getDistance(min[0], 0);
+        allNotExplored();
+        return distance;
+    }
+
+    int calcLowerBound(Node node){
+        int lowerBound = node.distanceSoFar;
+        int size = nodes.length;
+        for(int i = 0; i < size; i++){
+            if (!nodes[i].explored){
+                lowerBound += firstMinRow(i, getMatrix(), false)[1];
+            }
+        }
+
+        return lowerBound;
+    }
+
     /**
      * Funkcja zwracająca najmniejszą liczbę w wierszu macierzy. Zakres liczb 9001 - 9999 traktujemy jako nieskończoność, czyli brak przejścia między miastami.
      * @param i   - indeks wiersza
      * @param arr - macierz
      */
-    int firstMinRow(int i, int[][] arr)
+    int[] firstMinRow(int i, int[][] arr, boolean usedInGreedy)
     {
         int count = 0; //Zmienna pomocnicza sprawdzająca czy cały wiersz składa się z wartości nieskończoność
-        int min = 9999;
+        int[] minimum = new int[2];
+        minimum[0] = 0;
+        minimum[1] = 9999;
+
         for (int k = 0; k < getCities(); k++){
             if(arr[i][k] > 9000)
                 count++;
-            if (arr[i][k] < min && i != k)
-                min = arr[i][k];
+            if (arr[i][k] < minimum[1] && i != k && (!nodes[k].explored || k == 0)){
+                minimum[0] = k;
+                minimum[1] = arr[i][k];
+            }
         }
+        if(usedInGreedy)
+        nodes[minimum[0]].explored = true;
         //Jeśli cały wiersz składa się z wartości nieskończoność to zwracamy 0.
         if(count == getCities())
-            min = 0;
-        return min;
-    }
+            minimum[1] = 0;
 
-    Integer firstMinRow(ArrayList<Integer> arr)
-    {
-        int min = 9999;
-        for (int k = 0; k < getCities(); k++){
-            if (arr.get(k) < min && arr.get(k) != 0)
-                min = arr.get(k);
-        }
-        return min;
-    }
-
-    /**
-     * Funkcja zwracająca najmniejszą liczbę w kolumnie macierzy. Zakres liczb 9001 - 9999 traktujemy jako nieskończoność, czyli brak przejścia między miastami.
-     * @param i   - indeks kolumny
-     * @param arr - macierz
-     */
-    int firstMinCol(int i, int[][] arr)
-    {
-        int count = 0; //Zmienna pomocnicza sprawdzająca czy cały kolumna składa się z wartości nieskończoność
-        int min = 9999;
-        for (int k = 0; k < getCities(); k++){
-            if(arr[k][i] > 9000)
-                count++;
-            if (arr[k][i] < min && i != k)
-                min = arr[k][i];
-        }
-        //Jeśli cała kolumna składa się z wartości nieskończoność to zwracamy 0.
-        if(count == getCities())
-            min = 0;
-        return min;
-    }
-
-
-    /**
-     * Funkcja redukująca macierz odległości: w każdym wierszu znajdujemy element minimalny i odejmujemy go od każdego elementu wiersza. Tak samo czynimy w kolumnach.
-     * Przechowujemy sumę tych redukcji, ponieważ będzie ona potrzebna do oszacowywania najkrótszej ścieżki
-     * @param arr - macierz odległości
-     */
-    void reduceMatrix(int[][] arr){
-        sumReduction = 0;
-        for(int i = 0; i < getCities(); i++){
-            int localMin = firstMinRow(i, arr);
-            sumReduction += localMin;
-            for(int j= 0; j < getCities(); j++) {
-                arr[i][j] -= localMin;
-            }
-        }
-
-        for(int i = 0; i < getCities(); i++){
-            int localMin = firstMinCol(i, arr);
-            sumReduction += localMin;
-            for(int j= 0; j < getCities(); j++) {
-                arr[j][i] -= localMin;
-            }
-        }
-    }
-
-    /**
-     * Funkcja zwracająca węzeł z najmniejszym oszacowanym kosztem.
-     * @param arr - tablica składająca się z obiektów typu Node zawierających numer miasta i oszacowany koszt
-     */
-    Node nodeWithMinCost(Node[][] arr){
-        int min = arr[1][0].getCost();
-        int saveI = 1, saveJ = 0;
-
-        for (int i = 0; i < arr.length; i++) {
-            for (int j = 0; j < arr.length; j++)
-                if(arr[i][j] != null)
-                    if (arr[i][j].getCost() < min && !arr[i][j].expanded) {
-                        min = arr[i][j].getCost();
-
-                        saveI = i;
-                        saveJ = j;
-                    }
-
-        }
-        arr[saveI][saveJ].expanded = true;
-        return arr[saveI][saveJ];
-    }
-
-    int[][] saveArrAfterFirstRection(){
-        int[][] array = new int[getCities()][getCities()];    //zmienna tymczasowa przechowująca tablicę odległości
-
-        //kopiowanie tablicy odległości
-        for( int i = 0; i < this.getCities(); i++)
-            for( int j = 0; j < this.getCities(); j++)
-                array[i][j] = getDistance(i,j);
-
-        //pierwsza redukcja macierzy
-        //macierz posiada conajmniej raz 0 w każdym wierszu i kolumnie
-        reduceMatrix(array);
-
-        return array;
-    }
-
-    /**
-     * Realizacja funkcji ograniczającej.
-     * @param from - Węzeł (miasto) od którego rozpoczynamy szacowanie
-     * @param print - czy wyświetlić wynik
-     */
-    void expandNodes(int from, int level, boolean print){
-
-        int[][] tempArr = new int[getCities()][getCities()];    //zmienna tymczasowa przechowująca tablicę odległości
-
-        //przy pierwszej redukcji koszt startowego węzła jest równy sumie redukcji
-        if(costOfStartNode == 0)
-            costOfStartNode = sumReduction;
-
-        //Szacowanie
-        for (int k = 0; k < getCities(); k++){
-            if(visitCity[k]) continue;  //pomijamy miasto, jeśli było juz odwiedzone
-
-            int[][] arrayToLoad;
-            if(level == 0)
-                arrayToLoad = reducedDistance;
-            else{
-                arrayToLoad = bounds[level][from-1].getMatrix();
-            }
-
-            for( int i = 0; i < this.getCities(); i++)
-                for( int j = 0; j < this.getCities(); j++)
-                    tempArr[i][j] = arrayToLoad[i][j];
-
-            int edge = reducedDistance[from][k];    //zapisujemy koszt przejścia z węzła początkowego do rozpatrywanego
-
-            //Ustawiamy wiersz o indeksie węzła początkowego na nieskończoność
-            for (int j= 0; j< getCities(); j++)
-                tempArr[from][j] = 9999;
-
-            //Ustawiamy kolumnę o indeksie węzła rozpatrywanego na nieskończoność
-            for (int j= 0; j< getCities(); j++)
-                tempArr[j][k] = 9999;
-
-            //Ustawiamy odległość z węzła rozpatrywanego do początkowego na nieskończoność
-            tempArr[k][0] = 9999;
-
-            //redukujemy macierz, aby w każdym wierszu i kolumnie było conajmniej raz 0
-            reduceMatrix(tempArr);
-
-            int[][] arrayToRemember = new int[getCities()][getCities()];
-
-            for( int i = 0; i < this.getCities(); i++)
-                for( int j = 0; j < this.getCities(); j++)
-                    arrayToRemember[i][j] = tempArr[i][j];
-
-            ArrayList<Integer> pathToRemember = new ArrayList<>(finalPathv2);
-
-            pathToRemember.add(k);
-            //Koszt każdego węzła stanowi suma redukcji macierzy, odległość z miasta początkowego do rozpatrywanego i koszt węzła początkowego
-            Node node  = new Node(k, (sumReduction + edge + costOfStartNode), arrayToRemember, pathToRemember, level+1);
-            pq.add(node);
-            bounds[level+1][k-1] = node;
-            if(print){
-                System.out.println("from: " + (from));
-                System.out.println("bound " + (k) + ": " + sumReduction + " + " + edge + " + " + costOfStartNode + " = " + bounds[level+1][k-1].getCost());
-            }
-        }
-
-        //Szukamy węzła z minimalnym kosztem, wstawiamy jego numer do ścieżki, oznaczamy miasto jako odwiedzone i dodajemy wagę do ostatecznego kosztu ścieżki.
-        Node nodeWithMinCost = nodeWithMinCost(bounds);
-        finalPathv2 = nodeWithMinCost.getPath();
-        costOfStartNode = nodeWithMinCost.getCost();
-
-        Arrays.fill(visitCity, false);
-        for (int i=0; i < finalPathv2.size(); i++) {
-            visitCity[finalPathv2.get(i)] = true;
-        }
-
-        if(print){
-            int tempDistance = 0;
-            for (int i=0; i < finalPathv2.size()-1; i++)
-                tempDistance += getDistance(finalPathv2.get(i), finalPathv2.get(i+1));
-            for (int i=0; i < finalPathv2.size(); i++)
-                System.out.print(finalPathv2.get(i) + " ");
-            System.out.println("Current distance: " + tempDistance);
-        }
-    }
-
-    /**
-     * Realizacja metody Branch and Bound (podziału i ograniczeń)
-     * @param print - czy wyświetlić wynik
-     */
-    public void bnBSolution(boolean print){
-        reduceMatrix(reducedDistance);
-        int level = 0;
-
-        while(getNumOfUnvisitedCities() > 0){
-            expandNodes(finalPathv2.get(finalPathv2.size()-1), level,false);
-            level = getCities() - getNumOfUnvisitedCities() - 1;
-        }
-
-        for (int i = 0; i < finalPathv2.size()-1; i++) {
-            finalPathDistance += getDistance(finalPathv2.get(i), finalPathv2.get(i+1));
-        }
-        finalPathDistance += getDistance(finalPathv2.get(finalPathv2.size()-1), 0);
-        if(print) {
-            System.out.println("Distance: " + this.finalPathDistance);
-            System.out.print("Path: ");
-            System.out.println(finalPathv2);
-        }
-
-        //Reset zmiennych po zakończeniu algorytmu
-        Arrays.fill(visitCity, false);
-        visitCity[0] = true;
-        Arrays.fill(finalPath, 0);
-        finalPathDistance = 0;
-        costOfStartNode = 0;
-        sumReduction = 0;
+        return minimum;
     }
 
     //BFS
 
-    Result bfs(Node2 root){
-        System.out.println(sumReduction);
+    Result bfs(Node root, boolean print){
         LinkedList<Integer> path = new LinkedList<>();
-        LinkedList<Node2> queue = new LinkedList<>();
+        LinkedList<Node> queue = new LinkedList<>();
         int permutationSize = nodes.length;
         Result result = new Result();
         result.path = new int[permutationSize];
         int distance;
+        int greedySolution = greedy();
+        if (print)
+        System.out.println("Greedy: " + greedySolution);
         queue.add(root);
 
         while (!queue.isEmpty()){
-            Node2 v = queue.poll();
+            Node v = queue.poll();
 
             if(v.level == permutationSize-1){
 
@@ -520,16 +302,20 @@ public class TSP {
                     copyPathToResult(result, path);
                 }
             }
-                nodes[v.number].explored = true;
+
+            nodes[v.number].explored = true;
             setExploredNodes(v);
+
             for (int i = 0; i < permutationSize; i++) {
                 if(!nodes[i].explored){
-                    Node2 w = copyNode(nodes[i]);
+                    Node w = copyNode(nodes[i]);
                     w.level = v.level + 1;
                     w.parent = v;
                     w.distanceSoFar = v.distanceSoFar + getDistance(v.number, w.number);
-                    if(w.distanceSoFar <= 1.5*sumReduction)
-                    queue.add(w);
+                    w.lowerBound = calcLowerBound(w);
+
+                    if(w.lowerBound <= greedySolution)
+                        queue.add(w);
                 }
             }
             allNotExplored();
@@ -537,14 +323,23 @@ public class TSP {
         return result;
     }
 
-    LinkedList<Integer> createPath(Node2 endNode, LinkedList<Integer> path){
+    void doBFS(boolean print){
+        Node root = nodes[0];
+        Result result = bfs(root, print);
+        if(print){
+            System.out.println("Path: " + Arrays.toString(result.path));
+            System.out.println("Cost: " + result.cost);
+        }
+    }
+
+    LinkedList<Integer> createPath(Node endNode, LinkedList<Integer> path){
         path.clear();
         path = addParents(endNode, path);
         path.addFirst(0);
         return path;
     }
 
-    LinkedList<Integer> addParents(Node2 endNode, LinkedList<Integer> path){
+    LinkedList<Integer> addParents(Node endNode, LinkedList<Integer> path){
         if(endNode.parent != null){
             path.add(0, endNode.number);
                 addParents(endNode.parent, path);
@@ -559,7 +354,7 @@ public class TSP {
         }
     }
 
-    void setExploredNodes(Node2 node){
+    void setExploredNodes(Node node){
         if(node.parent != null){
             nodes[node.parent.number].explored = true;
             setExploredNodes(node.parent);
@@ -572,47 +367,25 @@ public class TSP {
             nodes[i].explored = false;
     }
 
-    void doBFS(){
-        Node2 root = nodes[0];
-        root.lowerBound = sumReduction;
-        Result result = bfs(root);
-        System.out.println("Path: " + Arrays.toString(result.path));
-        System.out.println("Cost: " + result.cost);
-    }
-
     void addNodes(){
         int size = nodes.length;
         for (int i = 0; i < size; i++){
-            Node2 node = new Node2();
+            Node node = new Node();
             node.number = i;
             node.level = 0;
             nodes[i] = node;
         }
     }
 
-    public static Node2 copyNode( Node2 other ) {
-        Node2 newNode = new Node2();
+    public static Node copyNode(Node other ) {
+        Node newNode = new Node();
         newNode.number = other.number;
         newNode.parent = other.parent;
-        newNode.lowerBound = other.lowerBound;
         newNode.level = other.level;
         newNode.distanceSoFar = other.distanceSoFar;
         newNode.explored = other.explored;
+        newNode.lowerBound = other.lowerBound;
         return newNode;
     }
-
-    /*int calculateBound(Node2 node){
-        int bound = 0;
-        int size = getCities();
-        for(int i = 0; i < size; i++){
-            if(!node.visitedSoFar.contains(i)){
-                bound += getDistance(node.number, i);
-            }
-        }
-        bound -= getDistance(node.number, node.parent.number);
-        return bound;
-    }*/
-
-
 
 }

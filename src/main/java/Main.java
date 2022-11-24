@@ -2,28 +2,19 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        //menu();
-        test();
-        //measurements();
+       // menu();
+        measurements(14);
     }
 
-    static void test(){
 
-        String fileName = "tsp_17.txt";
-       TSP tsp = TSP.readFromFileScanner(fileName);
-       //tsp.bruteForce(true);
-        assert tsp != null;
-        tsp.doBFS();
-
-    }
-
-    static void measurements(){
+    static void measurements(int size){
         TSP tsp;
+        System.out.println("Size: " + size);
         long start = System.nanoTime();
 
         for(int i = 0; i < 100; i++){
-            tsp = TSP.createRandomMatrix(10);
-            tsp.bnBSolution(false);
+            tsp = TSP.createRandomMatrix(size);
+            tsp.doBFS(false);
         }
 
         long finish = System.nanoTime();
@@ -72,7 +63,7 @@ public class Main {
                         break;
                     case 4 :
                         if(tsp != null)
-                            tsp.bnBSolution(true);
+                            tsp.doBFS(true);
                         else
                             System.out.println("Nie załadowano pliku");
                         break;
