@@ -224,9 +224,10 @@ public class TSP {
         int[] min = new int[2];
         nodes[0].explored = true;
         while(count < size){
-            min = firstMinRow(cityNumber, getMatrix(), true);
+            min = firstMinRowGreedy(cityNumber, getMatrix());
             distance += min[1];
             cityNumber = min[0];
+            //System.out.println(cityNumber);
             count++;
         }
 
@@ -240,7 +241,9 @@ public class TSP {
         int size = nodes.length;
         for(int i = 0; i < size; i++){
             if (!nodes[i].explored){
-                lowerBound += firstMinRow(i, getMatrix(), false)[1];
+                nodes[node.number].explored = true;
+                lowerBound += firstMinRow(i, getMatrix())[1];
+                nodes[node.number].explored = false;
             }
         }
 
@@ -252,7 +255,7 @@ public class TSP {
      * @param i   - indeks wiersza
      * @param arr - macierz
      */
-    int[] firstMinRow(int i, int[][] arr, boolean usedInGreedy)
+    int[] firstMinRow(int i, int[][] arr)
     {
         int count = 0; //Zmienna pomocnicza sprawdzająca czy cały wiersz składa się z wartości nieskończoność
         int[] minimum = new int[2];
@@ -267,8 +270,31 @@ public class TSP {
                 minimum[1] = arr[i][k];
             }
         }
-        if(usedInGreedy)
-        nodes[minimum[0]].explored = true;
+
+        //Jeśli cały wiersz składa się z wartości nieskończoność to zwracamy 0.
+        if(count == getCities())
+            minimum[1] = 0;
+
+        return minimum;
+    }
+
+    int[] firstMinRowGreedy(int i, int[][] arr)
+    {
+        int count = 0; //Zmienna pomocnicza sprawdzająca czy cały wiersz składa się z wartości nieskończoność
+        int[] minimum = new int[2];
+        minimum[0] = 0;
+        minimum[1] = 9999;
+
+        for (int k = 0; k < getCities(); k++){
+            if(arr[i][k] > 9000)
+                count++;
+            if (arr[i][k] < minimum[1] && i != k && !nodes[k].explored){
+                minimum[0] = k;
+                minimum[1] = arr[i][k];
+            }
+        }
+
+            nodes[minimum[0]].explored = true;
         //Jeśli cały wiersz składa się z wartości nieskończoność to zwracamy 0.
         if(count == getCities())
             minimum[1] = 0;
@@ -386,6 +412,104 @@ public class TSP {
         newNode.explored = other.explored;
         newNode.lowerBound = other.lowerBound;
         return newNode;
+    }
+
+    void performSA(boolean print){
+        ResultSA result = sa();
+        if(print){
+            System.out.println("Final solution distance: " + result.cost);
+            System.out.println("Tour: " + result.path);
+        }
+    }
+
+    ResultSA sa(){
+        int size = getCities();
+        // Set initial temp
+        double temp = 10000;
+
+        // Cooling rate
+        double coolingRate = 0.003;
+
+        ResultSA currentResult = getRandomSolution();
+
+        System.out.println("Initial solution distance: " + currentResult.cost);
+        System.out.println("Initial solution path: " + currentResult.path);
+
+        ResultSA best = currentResult;
+
+        while(temp > 1){
+            ArrayList<Integer> newSolution = currentResult.path;
+
+            // Get a random positions in the tour
+            int tourPos1 = (int) (size * Math.random());
+            int tourPos2 = (int) (size * Math.random());
+
+            // Get the cities at selected positions in the tour
+            Integer citySwap1 = newSolution.get(tourPos1);
+            Integer citySwap2 = newSolution.get(tourPos2);
+
+            // Swap them
+            newSolution.set(tourPos2, citySwap1);
+            newSolution.set(tourPos1, citySwap2);
+
+            // Get energy of solutions
+            int currentEnergy = getPathDistance(currentResult.path);
+            int neighbourEnergy = getPathDistance(newSolution);
+
+
+            // Decide if we should accept the neighbour
+            if (acceptanceProbability(currentEnergy, neighbourEnergy, temp) > Math.random()) {
+                currentResult.path = newSolution;
+                currentResult.cost = neighbourEnergy;
+            }
+
+            // Keep track of the best solution found
+            if (currentResult.cost < best.cost) {
+                best = currentResult;
+            }
+
+            // Cool system
+            temp *= 1-coolingRate;
+
+        }
+        return best;
+    }
+
+    int getPathDistance(ArrayList<Integer> list){
+        int cost = 0;
+        int size = getCities();
+        for(int i = 0; i < size-1; i++){
+            cost += getDistance(list.get(i), list.get(i+1));
+        }
+        cost+= getDistance(list.get(list.size()-1), list.get(0));
+
+        return cost;
+    }
+
+    // Calculate the acceptance probability
+    public static double acceptanceProbability(int energy, int newEnergy, double temperature) {
+        // If the new solution is better, accept it
+        if (newEnergy < energy) {
+            return 1.0;
+        }
+        // If the new solution is worse, calculate an acceptance probability
+        return Math.exp((energy - newEnergy) / temperature);
+    }
+
+    ResultSA getRandomSolution(){
+        ResultSA result = new ResultSA();
+        int cost = 0;
+        int size = getCities();
+        ArrayList<Integer> list = new ArrayList<>(size);
+        for(int i = 0; i < size; i++){
+            list.add(i);
+        }
+        Collections.shuffle(list);
+        cost = getPathDistance(list);
+
+        result.path = list;
+        result.cost = cost;
+        return result;
     }
 
 }

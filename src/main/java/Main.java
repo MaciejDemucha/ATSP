@@ -2,8 +2,8 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-       // menu();
-        measurements(14);
+        menu();
+        //measurements(15);
     }
 
 
@@ -34,11 +34,12 @@ public class Main {
         while(shouldContinue){
             System.out.println("\nZaładowany plik: " + fileName + "\n");
             System.out.println("Wybierz opcję: ");
+            System.out.println("0.Wyjdź ");
             System.out.println("1.Wczytaj plik ");
             System.out.println("2.Wyświetl macierz odległości ");
             System.out.println("3.Brute Force ");
             System.out.println("4.Branch and Bound ");
-            System.out.println("5.Wyjdź \n");
+            System.out.println("5.SA \n");
 
             try{
                 userChoice = scannerChoice.nextInt();
@@ -67,7 +68,13 @@ public class Main {
                         else
                             System.out.println("Nie załadowano pliku");
                         break;
-                    case 5 :shouldContinue = false;
+                    case 5 :
+                        if(tsp != null)
+                            tsp.performSA(true);
+                        else
+                            System.out.println("Nie załadowano pliku");
+                        break;
+                    case 0 :shouldContinue = false;
                         break;
                     default : System.out.println(" ");
                 }
