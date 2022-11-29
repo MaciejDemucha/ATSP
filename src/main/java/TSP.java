@@ -305,20 +305,21 @@ public class TSP {
     //BFS
 
     Result bfs(Node root, boolean print){
-        LinkedList<Integer> path = new LinkedList<>();
-        LinkedList<Node> queue = new LinkedList<>();
+        LinkedList<Integer> path = new LinkedList<>();  //sciezka
+        LinkedList<Node> queue = new LinkedList<>();    //kolejka
         int permutationSize = nodes.length;
         Result result = new Result();
         result.path = new int[permutationSize];
         int distance;
-        int greedySolution = greedy();
+        int greedySolution = greedy();  //znajdujemy zachłannie rozwiązanie
         if (print)
         System.out.println("Greedy: " + greedySolution);
-        queue.add(root);
+        queue.add(root);    //dodajemy korzen do kolejki
 
         while (!queue.isEmpty()){
-            Node v = queue.poll();
+            Node v = queue.poll(); //pobieramy wezel z kolejki
 
+            //jesli mamy pelen cykl sprawdzamy czy ma mniejszy koszt
             if(v.level == permutationSize-1){
 
                 path = createPath(v, path);
@@ -328,7 +329,7 @@ public class TSP {
                     copyPathToResult(result, path);
                 }
             }
-
+            //oznaczamy miasto pobrane z kolejki jako odwiedzone oraz wierzcholki ktore byly juz odwiedzone w tej sciezce
             nodes[v.number].explored = true;
             setExploredNodes(v);
 
@@ -338,12 +339,14 @@ public class TSP {
                     w.level = v.level + 1;
                     w.parent = v;
                     w.distanceSoFar = v.distanceSoFar + getDistance(v.number, w.number);
-                    w.lowerBound = calcLowerBound(w);
+                    w.lowerBound = calcLowerBound(w);   //obliczamy dolna granice
 
+                    //wstawiamy wezel do kolejki jedynie jesli dolna granica jest mniejszalub rowna znalezionemu rozwiazaniu
                     if(w.lowerBound <= greedySolution)
                         queue.add(w);
                 }
             }
+            //ustawiamy miasta jako nieodwiedzone przed rozwazeniem nastepnej sciezki
             allNotExplored();
         }
         return result;
@@ -424,52 +427,49 @@ public class TSP {
 
     ResultSA sa(){
         int size = getCities();
-        // Set initial temp
+        // temperatura poczatkowa
         double temp = 10000;
 
-        // Cooling rate
-        double coolingRate = 0.003;
+        double coolingRate = 0.997;
 
         ResultSA currentResult = getRandomSolution();
 
         System.out.println("Initial solution distance: " + currentResult.cost);
         System.out.println("Initial solution path: " + currentResult.path);
 
-        ResultSA best = currentResult;
+        ResultSA best = new ResultSA(currentResult);
 
         while(temp > 1){
             ArrayList<Integer> newSolution = currentResult.path;
 
-            // Get a random positions in the tour
+            // losowanie indeksów miast do zamiany
             int tourPos1 = (int) (size * Math.random());
             int tourPos2 = (int) (size * Math.random());
 
-            // Get the cities at selected positions in the tour
             Integer citySwap1 = newSolution.get(tourPos1);
             Integer citySwap2 = newSolution.get(tourPos2);
 
-            // Swap them
             newSolution.set(tourPos2, citySwap1);
             newSolution.set(tourPos1, citySwap2);
 
-            // Get energy of solutions
+            // Obliczenie energii - kosztu cyklów
             int currentEnergy = getPathDistance(currentResult.path);
             int neighbourEnergy = getPathDistance(newSolution);
 
 
-            // Decide if we should accept the neighbour
+            // Losowanie czy zaakceptować
             if (acceptanceProbability(currentEnergy, neighbourEnergy, temp) > Math.random()) {
                 currentResult.path = newSolution;
                 currentResult.cost = neighbourEnergy;
             }
 
-            // Keep track of the best solution found
+            // zapisanie lepszego rozwiązania
             if (currentResult.cost < best.cost) {
-                best = currentResult;
+                best = new ResultSA(currentResult);
             }
 
-            // Cool system
-            temp *= 1-coolingRate;
+            // obniżenie temperatury
+            temp *= coolingRate;
 
         }
         return best;
