@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         menu();
         //measurements(15);
     }
@@ -24,12 +24,11 @@ public class Main {
     }
 
     static void menu() {
-        TSP tsp = null;
-        Scanner scannerChoice = new Scanner(System.in);
-        Scanner scannerFile = new Scanner(System.in);
+        TSP tsp;
+        Scanner scanner = new Scanner(System.in);
         boolean shouldContinue = true;
         int userChoice = 0;
-        String fileName = "test5.txt";
+        String fileName = "tsp_10a.txt";
         tsp = TSP.readFromFileScanner(fileName);
         while(shouldContinue){
             System.out.println("\nZaładowany plik: " + fileName + "\n");
@@ -42,12 +41,12 @@ public class Main {
             System.out.println("5.SA \n");
 
             try{
-                userChoice = scannerChoice.nextInt();
+                userChoice = Integer.parseInt(scanner.nextLine());
 
                 switch (userChoice){
                     case 1:
                         System.out.println("Podaj nazwę pliku z rozszerzeniem: ");
-                        fileName = scannerFile.nextLine();
+                        fileName = scanner.nextLine();
                         tsp = TSP.readFromFileScanner(fileName);
                     break;
                     case 2:
@@ -69,8 +68,20 @@ public class Main {
                             System.out.println("Nie załadowano pliku");
                         break;
                     case 5 :
-                        if(tsp != null)
-                            tsp.performSA(true);
+                        if(tsp != null){
+                            System.out.println("Wybierz metodę redukcji temperatury: ");
+                            System.out.println("alpha(T) = a * T (a < 1): 1");
+                            System.out.println("alpha(T) = T/(1+b*T) (b << 1): 2");
+                            int method = Integer.parseInt(scanner.nextLine());
+                            if(method != 1 || method != 2)
+                                break;
+                            System.out.println("Podaj temperaturę początkową: ");
+                            double startTemp = Double.parseDouble(scanner.nextLine());
+                            System.out.println("Podaj współczynnik redukcji temperatury: ");
+                            double reductionRate = Double.parseDouble(scanner.nextLine());
+                            tsp.performSA(true, startTemp, reductionRate, method);
+                        }
+
                         else
                             System.out.println("Nie załadowano pliku");
                         break;
@@ -80,9 +91,9 @@ public class Main {
                 }
 
             }
-            catch (InputMismatchException e){
-                System.out.println(" ");
-                scannerChoice.nextLine();
+            catch (InputMismatchException | NumberFormatException e){
+                //System.out.println("Naciśnij ENTER ");
+                //scanner.nextLine();
             }
         }
     }

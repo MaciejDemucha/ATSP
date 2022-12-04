@@ -417,22 +417,27 @@ public class TSP {
         return newNode;
     }
 
-    void performSA(boolean print){
-        ResultSA result = sa();
-        if(print){
-            System.out.println("Final solution distance: " + result.cost);
-            System.out.println("Tour: " + result.path);
+    void performSA(boolean print, double startTemp, double reductionRate, int method){
+        Scanner scanner = new Scanner(System.in);
+        boolean restart = true;
+        ResultSA start = getRandomSolution();
+        while(restart){
+            ResultSA result = simulatedAnnealing(start, startTemp, reductionRate, method);
+            if(print){
+                System.out.println("Final solution distance: " + result.cost);
+                System.out.println("Tour: " + result.path);
+            }
+            System.out.println("Restart with last found solution? [true/false]");
+            restart = scanner.nextBoolean();
+            start = result;
         }
+
     }
 
-    ResultSA sa(){
+    ResultSA simulatedAnnealing(ResultSA currentResult, double startTemp, double reductionRate, int method){
         int size = getCities();
         // temperatura poczatkowa
-        double temp = 10000;
-
-        double coolingRate = 0.997;
-
-        ResultSA currentResult = getRandomSolution();
+        double temp = startTemp;
 
         System.out.println("Initial solution distance: " + currentResult.cost);
         System.out.println("Initial solution path: " + currentResult.path);
@@ -443,8 +448,12 @@ public class TSP {
             ArrayList<Integer> newSolution = currentResult.path;
 
             // losowanie indeksów miast do zamiany
-            int tourPos1 = (int) (size * Math.random());
-            int tourPos2 = (int) (size * Math.random());
+            int tourPos1 = (int) ((size-1) * Math.random());
+            int tourPos2 = (int) ((size-1) * Math.random());
+
+            //unikamy miasta początkowego
+            tourPos1++;
+            tourPos2++;
 
             Integer citySwap1 = newSolution.get(tourPos1);
             Integer citySwap2 = newSolution.get(tourPos2);
@@ -469,10 +478,46 @@ public class TSP {
             }
 
             // obniżenie temperatury
-            temp *= coolingRate;
+            if(method == 1)
+                temp = geometricReduction(temp, reductionRate);
+            if(method == 2)
+                temp = slowDecreaseRule(temp, reductionRate);
 
         }
         return best;
+    }
+
+    double geometricReduction(double t, double alpha){
+        return t*alpha;
+    }
+
+    double slowDecreaseRule(double t, double beta){
+        return t/(1+beta*t);
+    }
+
+    ResultSA greedySA(){
+        int size = getCities() - 1;
+        int count = 0;
+        int cityNumber = 0;
+        int distance = 0;
+        ResultSA result = new ResultSA();
+        ArrayList<Integer> path = new ArrayList<>();
+        path.add(0);
+        int[] min = new int[2];
+        nodes[0].explored = true;
+        while(count < size){
+            min = firstMinRowGreedy(cityNumber, getMatrix());
+            distance += min[1];
+            cityNumber = min[0];
+            path.add(cityNumber);
+            count++;
+        }
+
+        distance += getDistance(min[0], 0);
+        result.cost = distance;
+        result.path = path;
+        allNotExplored();
+        return result;
     }
 
     int getPathDistance(ArrayList<Integer> list){
@@ -486,14 +531,14 @@ public class TSP {
         return cost;
     }
 
-    // Calculate the acceptance probability
+    // Obliczenie prawdopodobienstwa akceptacji nowego rozwiazania
     public static double acceptanceProbability(int energy, int newEnergy, double temperature) {
-        // If the new solution is better, accept it
+        // akceptujemy lepsze rozwiazanie
         if (newEnergy < energy) {
             return 1.0;
         }
-        // If the new solution is worse, calculate an acceptance probability
-        return Math.exp((energy - newEnergy) / temperature);
+        // Jesli nie to akceptujemy nowe rozwiazanie z danym prawdopodobienstwem
+        return Math.exp(-(newEnergy - energy) / temperature);
     }
 
     ResultSA getRandomSolution(){
