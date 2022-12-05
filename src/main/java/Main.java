@@ -3,7 +3,7 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) {
         menu();
-        //measurements(15);
+       // measurements(1800);
     }
 
 
@@ -14,7 +14,7 @@ public class Main {
 
         for(int i = 0; i < 100; i++){
             tsp = TSP.createRandomMatrix(size);
-            tsp.doBFS(false);
+            tsp.performSAMeasurements(40000, 0.999, 1);
         }
 
         long finish = System.nanoTime();
@@ -73,13 +73,13 @@ public class Main {
                             System.out.println("alpha(T) = a * T (a < 1): 1");
                             System.out.println("alpha(T) = T/(1+b*T) (b << 1): 2");
                             int method = Integer.parseInt(scanner.nextLine());
-                            if(method != 1 || method != 2)
+                            if(method != 1 && method != 2)
                                 break;
                             System.out.println("Podaj temperaturę początkową: ");
                             double startTemp = Double.parseDouble(scanner.nextLine());
                             System.out.println("Podaj współczynnik redukcji temperatury: ");
                             double reductionRate = Double.parseDouble(scanner.nextLine());
-                            tsp.performSA(true, startTemp, reductionRate, method);
+                            tsp.performSA(startTemp, reductionRate, method);
                         }
 
                         else

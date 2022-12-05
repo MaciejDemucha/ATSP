@@ -417,20 +417,32 @@ public class TSP {
         return newNode;
     }
 
-    void performSA(boolean print, double startTemp, double reductionRate, int method){
+    void performSA(double startTemp, double reductionRate, int method){
         Scanner scanner = new Scanner(System.in);
         boolean restart = true;
         ResultSA start = getRandomSolution();
         while(restart){
+
+                System.out.println("Initial solution distance: " + start.cost);
+                System.out.println("Initial solution path: " + start.path);
+
             ResultSA result = simulatedAnnealing(start, startTemp, reductionRate, method);
-            if(print){
+
                 System.out.println("Final solution distance: " + result.cost);
                 System.out.println("Tour: " + result.path);
-            }
+
             System.out.println("Restart with last found solution? [true/false]");
             restart = scanner.nextBoolean();
             start = result;
         }
+
+    }
+
+    void performSAMeasurements(double startTemp, double reductionRate, int method){
+
+            ResultSA start = getRandomSolution();
+
+            ResultSA result = simulatedAnnealing(start, startTemp, reductionRate, method);
 
     }
 
@@ -439,13 +451,10 @@ public class TSP {
         // temperatura poczatkowa
         double temp = startTemp;
 
-        System.out.println("Initial solution distance: " + currentResult.cost);
-        System.out.println("Initial solution path: " + currentResult.path);
-
         ResultSA best = new ResultSA(currentResult);
 
         while(temp > 1){
-            ArrayList<Integer> newSolution = currentResult.path;
+            ArrayList<Integer> newSolution = new ArrayList<>(currentResult.path);
 
             // losowanie indeksów miast do zamiany
             int tourPos1 = (int) ((size-1) * Math.random());
@@ -465,9 +474,8 @@ public class TSP {
             int currentEnergy = getPathDistance(currentResult.path);
             int neighbourEnergy = getPathDistance(newSolution);
 
-
             // Losowanie czy zaakceptować
-            if (acceptanceProbability(currentEnergy, neighbourEnergy, temp) > Math.random()) {
+             if (acceptanceProbability(currentEnergy, neighbourEnergy, temp) > Math.random()) {
                 currentResult.path = newSolution;
                 currentResult.cost = neighbourEnergy;
             }
