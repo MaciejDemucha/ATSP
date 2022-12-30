@@ -1,3 +1,5 @@
+import Genetic.SelectionType;
+
 import java.util.*;
 
 public class Main {
@@ -38,7 +40,8 @@ public class Main {
             System.out.println("2.Wyświetl macierz odległości ");
             System.out.println("3.Brute Force ");
             System.out.println("4.Branch and Bound ");
-            System.out.println("5.SA \n");
+            System.out.println("5.SA ");
+            System.out.println("6.Algorytm genetyczny \n");
 
             try{
                 userChoice = Integer.parseInt(scanner.nextLine());
@@ -85,15 +88,44 @@ public class Main {
                         else
                             System.out.println("Nie załadowano pliku");
                         break;
+                    case 6 :
+                        if(tsp != null){
+                            SelectionType selectionType;
+                            int startingCity = 0;
+
+                            System.out.println("Wybierz metodę selekcji osobników do krzyżowania: ");
+                            System.out.println("losowo: 1");
+                            System.out.println("Tournament selection: 2");
+                            int choice = Integer.parseInt(scanner.nextLine());
+                            if(choice == 1)  selectionType = SelectionType.ROULETTE;
+                            else selectionType = SelectionType.TOURNAMENT;
+
+                            System.out.println("Podaj wielkość początkowej generacji: ");
+                            int generationSize = Integer.parseInt(scanner.nextLine());
+                            System.out.println("Podaj ilość reprodukowanych genomów: ");
+                            int reproductionSize = Integer.parseInt(scanner.nextLine());
+                            System.out.println("Podaj maksymalną liczbę iteracji: ");
+                            int maxIterations = Integer.parseInt(scanner.nextLine());
+                            System.out.println("Podaj współczynnik mutacji: ");
+                            float mutationRate = Float.parseFloat(scanner.nextLine());
+                            System.out.println("Podaj rozmiar turnieju: ");
+                            int tournamentSize = Integer.parseInt(scanner.nextLine());
+                            System.out.println("Podaj docelowy koszt: ");
+                            int targetFitness = Integer.parseInt(scanner.nextLine());
+                            System.out.println(tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize, reproductionSize,  maxIterations, mutationRate, tournamentSize, targetFitness));
+                        }
+
+                        else
+                            System.out.println("Nie załadowano pliku");
+                        break;
                     case 0 :shouldContinue = false;
                         break;
                     default : System.out.println(" ");
                 }
 
             }
-            catch (InputMismatchException | NumberFormatException e){
-                //System.out.println("Naciśnij ENTER ");
-                //scanner.nextLine();
+            catch (InputMismatchException | NumberFormatException ignored){
+
             }
         }
     }

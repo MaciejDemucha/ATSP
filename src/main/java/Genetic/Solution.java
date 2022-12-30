@@ -18,6 +18,29 @@ public class Solution {
     private int tournamentSize;
     private SelectionType selectionType;
 
+    public Solution(int numberOfCities, SelectionType selectionType, int[][] travelPrices, int startingCity, int generationSize, int reproductionSize, int maxIterations, float mutationRate, int tournamentSize, int targetFitness){
+        this.numberOfCities = numberOfCities;
+        this.genomeSize = numberOfCities-1;
+        this.selectionType = selectionType;
+        this.travelPrices = travelPrices;
+        this.startingCity = startingCity;
+        this.targetFitness = targetFitness;
+
+        this.generationSize = generationSize;
+        this.reproductionSize = reproductionSize;
+        this.maxIterations = maxIterations;
+        this.mutationRate = mutationRate;
+        this.tournamentSize = tournamentSize;
+    }
+
+    public List<SalesmanGenome> initialPopulation(){
+        List<SalesmanGenome> population = new ArrayList<>();
+        for(int i=0; i<generationSize; i++){
+            population.add(new SalesmanGenome(numberOfCities, travelPrices, startingCity));
+        }
+        return population;
+    }
+
     // We select reproductionSize genomes based on the method
 // predefined in the attribute selectionType
     public List<SalesmanGenome> selection(List<SalesmanGenome> population) {
@@ -138,5 +161,24 @@ public class Solution {
             currentGenerationSize += 2;
         }
         return generation;
+    }
+
+    public void printGeneration(List<SalesmanGenome> generation ){
+        for( SalesmanGenome genome : generation){
+            System.out.println(genome);
+        }
+    }
+
+    public SalesmanGenome optimize() {
+        List<SalesmanGenome> population = initialPopulation();
+        SalesmanGenome globalBestGenome = population.get(0);
+        for (int i = 0; i < maxIterations; i++) {
+            List<SalesmanGenome> selected = selection(population);
+            population = createGeneration(selected);
+            globalBestGenome = Collections.min(population);
+            if (globalBestGenome.getFitness() < targetFitness)
+                break;
+        }
+        return globalBestGenome;
     }
 }

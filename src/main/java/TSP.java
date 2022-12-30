@@ -1,3 +1,7 @@
+import Genetic.SalesmanGenome;
+import Genetic.SelectionType;
+import Genetic.Solution;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -563,6 +567,13 @@ public class TSP {
         result.path = list;
         result.cost = cost;
         return result;
+    }
+
+    public SalesmanGenome geneticAlgoritmSolution(SelectionType selectionType, int startingCity, int generationSize, int reproductionSize,  int maxIterations,  float mutationRate, int tournamentSize, int targetFitness){
+        int numberOfCities = distance.length;
+        Solution geneticAlgoritm = new Solution(numberOfCities, SelectionType.TOURNAMENT, distance, 0, generationSize,  reproductionSize,  maxIterations,  mutationRate, tournamentSize, targetFitness);
+
+        return geneticAlgoritm.optimize();
     }
 
 }
