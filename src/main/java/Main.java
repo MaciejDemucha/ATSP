@@ -5,10 +5,63 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) {
         menu();
-       // measurements(1800);
+        //measurements(40);
+        //measurementsQualitySA();
     }
 
-
+static void measurementsQualitySA(){
+    TSP tsp;
+    ResultSA result;
+    tsp = TSP.readFromFileScanner("tsp_170.txt");
+    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),1000, 0.001, 0.95, 1);
+    System.out.println("Final solution distance: " + result.getCost());
+    System.out.println("Tour: " + result.getPath());
+    System.out.println("*********************************************************************************");
+    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),1000, 0.001, 0.99, 1);
+    System.out.println("Final solution distance: " + result.getCost());
+    System.out.println("Tour: " + result.getPath());
+    System.out.println("*********************************************************************************");
+    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),1000, 0.001, 0.999, 1);
+    System.out.println("Final solution distance: " + result.getCost());
+    System.out.println("Tour: " + result.getPath());
+    System.out.println("*********************************************************************************");
+    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),2000, 0.001, 0.95, 1);
+    System.out.println("Final solution distance: " + result.getCost());
+    System.out.println("Tour: " + result.getPath());
+    System.out.println("*********************************************************************************");
+    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),2000, 0.001, 0.99, 1);
+    System.out.println("Final solution distance: " + result.getCost());
+    System.out.println("Tour: " + result.getPath());
+    System.out.println("*********************************************************************************");
+    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),2000, 0.001, 0.999, 1);
+    System.out.println("Final solution distance: " + result.getCost());
+    System.out.println("Tour: " + result.getPath());
+    System.out.println("*********************************************************************************");
+    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),5000, 0.001, 0.95, 1);
+    System.out.println("Final solution distance: " + result.getCost());
+    System.out.println("Tour: " + result.getPath());
+    System.out.println("*********************************************************************************");
+    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),5000, 0.001, 0.99, 1);
+    System.out.println("Final solution distance: " + result.getCost());
+    System.out.println("Tour: " + result.getPath());
+    System.out.println("*********************************************************************************");
+    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),5000, 0.001, 0.999, 1);
+    System.out.println("Final solution distance: " + result.getCost());
+    System.out.println("Tour: " + result.getPath());
+    System.out.println("*********************************************************************************");
+    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),10000, 0.001, 0.95, 1);
+    System.out.println("Final solution distance: " + result.getCost());
+    System.out.println("Tour: " + result.getPath());
+    System.out.println("*********************************************************************************");
+    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),10000, 0.001, 0.99, 1);
+    System.out.println("Final solution distance: " + result.getCost());
+    System.out.println("Tour: " + result.getPath());
+    System.out.println("*********************************************************************************");
+    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),10000, 0.001, 0.999, 1);
+    System.out.println("Final solution distance: " + result.getCost());
+    System.out.println("Tour: " + result.getPath());
+    System.out.println("*********************************************************************************");
+}
     static void measurements(int size){
         TSP tsp;
         System.out.println("Size: " + size);
@@ -16,7 +69,7 @@ public class Main {
 
         for(int i = 0; i < 100; i++){
             tsp = TSP.createRandomMatrix(size);
-            tsp.performSAMeasurements(40000, 0.999, 1);
+            tsp.performSAMeasurements(40000, 1, 0.001, 2);
         }
 
         long finish = System.nanoTime();
@@ -66,7 +119,7 @@ public class Main {
                         break;
                     case 4 :
                         if(tsp != null)
-                            tsp.doBFS(true);
+                            tsp.performBnB(true);
                         else
                             System.out.println("Nie załadowano pliku");
                         break;
@@ -80,9 +133,11 @@ public class Main {
                                 break;
                             System.out.println("Podaj temperaturę początkową: ");
                             double startTemp = Double.parseDouble(scanner.nextLine());
+                            System.out.println("Podaj temperaturę końcową: ");
+                            double endTemp = Double.parseDouble(scanner.nextLine());
                             System.out.println("Podaj współczynnik redukcji temperatury: ");
                             double reductionRate = Double.parseDouble(scanner.nextLine());
-                            tsp.performSA(startTemp, reductionRate, method);
+                            tsp.performSA(startTemp, endTemp, reductionRate, method);
                         }
 
                         else

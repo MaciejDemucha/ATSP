@@ -308,7 +308,7 @@ public class TSP {
 
     //BFS
 
-    Result bfs(Node root, boolean print){
+    Result BnBAlgoritm(Node root, boolean print){
         LinkedList<Integer> path = new LinkedList<>();  //sciezka
         LinkedList<Node> queue = new LinkedList<>();    //kolejka
         int permutationSize = nodes.length;
@@ -356,9 +356,9 @@ public class TSP {
         return result;
     }
 
-    void doBFS(boolean print){
+    void performBnB(boolean print){
         Node root = nodes[0];
-        Result result = bfs(root, print);
+        Result result = BnBAlgoritm(root, print);
         if(print){
             System.out.println("Path: " + Arrays.toString(result.path));
             System.out.println("Cost: " + result.cost);
@@ -421,19 +421,30 @@ public class TSP {
         return newNode;
     }
 
-    void performSA(double startTemp, double reductionRate, int method){
+    //Simulated annealing
+
+    void performSA(double startTemp, double endTemp, double reductionRate, int method){
         Scanner scanner = new Scanner(System.in);
         boolean restart = true;
-        ResultSA start = getRandomSolution();
+        int firstResult;
+        ResultSA start;
+        System.out.println("Pierwsze rozwiązanie ma być wybierane: ");
+        System.out.println("1. losowo ");
+        System.out.println("2. algorytmem zachłannym ");
+        firstResult = Integer.parseInt(scanner.nextLine());
+        if(firstResult == 1)
+            start = getRandomSolution();
+        else
+            start = greedySA();
         while(restart){
 
-                System.out.println("Initial solution distance: " + start.cost);
-                System.out.println("Initial solution path: " + start.path);
+                System.out.println("Initial solution distance: " + start.getCost());
+                System.out.println("Initial solution path: " + start.getPath());
 
-            ResultSA result = simulatedAnnealing(start, startTemp, reductionRate, method);
+            ResultSA result = simulatedAnnealing(start, startTemp, endTemp, reductionRate, method);
 
-                System.out.println("Final solution distance: " + result.cost);
-                System.out.println("Tour: " + result.path);
+                System.out.println("Final solution distance: " + result.getCost());
+                System.out.println("Tour: " + result.getPath());
 
             System.out.println("Restart with last found solution? [true/false]");
             restart = scanner.nextBoolean();
@@ -442,23 +453,24 @@ public class TSP {
 
     }
 
-    void performSAMeasurements(double startTemp, double reductionRate, int method){
+    void performSAMeasurements(double startTemp,double endTemp, double reductionRate, int method){
 
             ResultSA start = getRandomSolution();
 
-            ResultSA result = simulatedAnnealing(start, startTemp, reductionRate, method);
+            ResultSA result = simulatedAnnealing(start, startTemp, endTemp, reductionRate, method);
 
     }
 
-    ResultSA simulatedAnnealing(ResultSA currentResult, double startTemp, double reductionRate, int method){
+    ResultSA simulatedAnnealing(ResultSA currentResult, double startTemp, double endTemp, double reductionRate, int method){
         int size = getCities();
+        double propability;
         // temperatura poczatkowa
         double temp = startTemp;
 
         ResultSA best = new ResultSA(currentResult);
 
-        while(temp > 1){
-            ArrayList<Integer> newSolution = new ArrayList<>(currentResult.path);
+        while(temp > endTemp){
+            ArrayList<Integer> newSolution = new ArrayList<>(currentResult.getPath());
 
             // losowanie indeksów miast do zamiany
             int tourPos1 = (int) ((size-1) * Math.random());
@@ -475,17 +487,18 @@ public class TSP {
             newSolution.set(tourPos1, citySwap2);
 
             // Obliczenie energii - kosztu cyklów
-            int currentEnergy = getPathDistance(currentResult.path);
+            int currentEnergy = getPathDistance(currentResult.getPath());
             int neighbourEnergy = getPathDistance(newSolution);
+            propability = acceptanceProbability(currentEnergy, neighbourEnergy, temp);
 
             // Losowanie czy zaakceptować
-             if (acceptanceProbability(currentEnergy, neighbourEnergy, temp) > Math.random()) {
-                currentResult.path = newSolution;
-                currentResult.cost = neighbourEnergy;
+             if (propability > Math.random()) {
+                currentResult.setPath(newSolution);
+                currentResult.setCost(neighbourEnergy);
             }
 
             // zapisanie lepszego rozwiązania
-            if (currentResult.cost < best.cost) {
+            if (currentResult.getCost() < best.getCost()) {
                 best = new ResultSA(currentResult);
             }
 
@@ -526,8 +539,8 @@ public class TSP {
         }
 
         distance += getDistance(min[0], 0);
-        result.cost = distance;
-        result.path = path;
+        result.setCost(distance);
+        result.setPath(path);
         allNotExplored();
         return result;
     }
@@ -564,8 +577,8 @@ public class TSP {
         Collections.shuffle(list);
         cost = getPathDistance(list);
 
-        result.path = list;
-        result.cost = cost;
+        result.setPath(list);
+        result.setCost(cost);
         return result;
     }
 
