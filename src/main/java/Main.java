@@ -1,3 +1,4 @@
+import Genetic.MutationType;
 import Genetic.SalesmanGenome;
 import Genetic.SelectionType;
 import Genetic.Solution;
@@ -9,12 +10,12 @@ public class Main {
         menu();
         //measurements(40);
         //measurementsQualitySA();
-        //inversionMutation();
+       // inversionMutation();
     }
 
 
 
-   /* public static void inversionMutation() {
+    /*public static void inversionMutation() {
         Random random = new Random();
 
             List<Integer> genome = new ArrayList<>();
@@ -33,7 +34,7 @@ public class Main {
             int end = Solution.randInt(start+1, genome.size()-2);
         System.out.println(start + " " + end);
 
-            List reversedPart = Solution.reverseArray(genome, start, end);
+            List reversedPart = Solution.shuffleArray(genome, start, end);
 
             int indexOfReversedPart = 0;
 
@@ -126,9 +127,9 @@ static void measurementsQualitySA(){
             System.out.println("0.Wyjdź ");
             System.out.println("1.Wczytaj plik ");
             System.out.println("2.Wyświetl macierz odległości ");
-            System.out.println("3.Brute Force ");
-            System.out.println("4.Branch and Bound ");
-            System.out.println("5.SA ");
+            System.out.println("3.Przegląd zupełny ");
+            System.out.println("4.Metoda podziału i ograniczeń ");
+            System.out.println("5.Symulowane wyżarzanie ");
             System.out.println("6.Algorytm genetyczny \n");
 
             try{
@@ -181,6 +182,7 @@ static void measurementsQualitySA(){
                     case 6 :
                         if(tsp != null){
                             SelectionType selectionType;
+                            MutationType mutationType;
                             int startingCity = 0;
 
                             System.out.println("Wybierz metodę selekcji osobników do krzyżowania: ");
@@ -189,6 +191,15 @@ static void measurementsQualitySA(){
                             int choice = Integer.parseInt(scanner.nextLine());
                             if(choice == 1)  selectionType = SelectionType.ROULETTE;
                             else selectionType = SelectionType.TOURNAMENT;
+
+                            System.out.println("Wybierz metodę mutacji: ");
+                            System.out.println("Zamiana 2 wartości: 1");
+                            System.out.println("Inversion mutation: 2");
+                            System.out.println("Scramble mutation: 3");
+                            choice = Integer.parseInt(scanner.nextLine());
+                            if(choice == 1)  mutationType = MutationType.SWAP;
+                            else if(choice == 2) mutationType = MutationType.INVERSE;
+                            else mutationType = MutationType.SCRAMBLE;
 
                             System.out.println("Podaj wielkość początkowej generacji: ");
                             int generationSize = Integer.parseInt(scanner.nextLine());
@@ -202,7 +213,8 @@ static void measurementsQualitySA(){
                             int tournamentSize = Integer.parseInt(scanner.nextLine());
                             System.out.println("Podaj docelowy koszt: ");
                             int targetFitness = Integer.parseInt(scanner.nextLine());
-                            System.out.println(tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize, reproductionSize,  maxIterations, mutationRate, tournamentSize, targetFitness));
+
+                            System.out.println(tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize, reproductionSize,  maxIterations, mutationRate, tournamentSize, targetFitness, mutationType));
                         }
 
                         else

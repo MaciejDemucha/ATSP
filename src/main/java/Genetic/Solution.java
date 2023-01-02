@@ -14,11 +14,13 @@ public class Solution {
     private int targetFitness;
     private int tournamentSize;
     private SelectionType selectionType;
+    private MutationType mutationType;
 
-    public Solution(int numberOfCities, SelectionType selectionType, int[][] travelPrices, int startingCity, int generationSize, int reproductionSize, int maxIterations, float mutationRate, int tournamentSize, int targetFitness){
+    public Solution(int numberOfCities, SelectionType selectionType, int[][] travelPrices, int startingCity, int generationSize, int reproductionSize, int maxIterations, float mutationRate, int tournamentSize, int targetFitness, MutationType mutationType){
         this.numberOfCities = numberOfCities;
         this.genomeSize = numberOfCities-1;
         this.selectionType = selectionType;
+        this.mutationType = mutationType;
         this.travelPrices = travelPrices;
         this.startingCity = startingCity;
         this.targetFitness = targetFitness;
@@ -155,9 +157,19 @@ public class Solution {
 
         for (int i = start; i <= n; i++) {
             destArray.add(startArray.get(i));
-
         }
         Collections.reverse(destArray);
+
+        return destArray;
+    }
+
+    public static List<Integer> shuffleArray(List<Integer> startArray, int start, int n) {
+        List destArray = new ArrayList();
+
+        for (int i = start; i <= n; i++) {
+            destArray.add(startArray.get(i));
+        }
+        Collections.shuffle(destArray);
 
         return destArray;
     }
@@ -185,16 +197,51 @@ public class Solution {
         return salesman;
     }
 
+    public SalesmanGenome scrambleMutation(SalesmanGenome salesman) {
+        Random random = new Random();
+        float mutate = random.nextFloat();
+        if (mutate < mutationRate) {
+            List<Integer> genome = salesman.getGenome();
+
+            int start = randInt(0, genome.size()-2);
+            int end = randInt(start+1, genome.size()-2);
+
+
+            List reversedPart = shuffleArray(genome, start, end);
+            int indexOfReversedPart = 0;
+
+            for(int i = start; i <= end; i++){
+                genome.set(i, (Integer) reversedPart.get(indexOfReversedPart));
+                indexOfReversedPart++;
+            }
+
+            return new SalesmanGenome(genome, numberOfCities, travelPrices, startingCity);
+        }
+        return salesman;
+    }
+
     public List<SalesmanGenome> createGeneration(List<SalesmanGenome> population) {
         List<SalesmanGenome> generation = new ArrayList<>();
         int currentGenerationSize = 0;
         while (currentGenerationSize < generationSize) {
             List<SalesmanGenome> parents = pickNRandomElements(population, 2);
             List<SalesmanGenome> children = crossover(parents);
-            //children.set(0, mutate(children.get(0)));
-            //children.set(1, mutate(children.get(1)));
-            children.set(0, inversionMutation(children.get(0)));
-            children.set(1, inversionMutation(children.get(1)));
+
+            if (mutationType == MutationType.SWAP){
+                children.set(0, mutate(children.get(0)));
+                children.set(1, mutate(children.get(1)));
+            }
+
+            else if (mutationType == MutationType.INVERSE) {
+                children.set(0, inversionMutation(children.get(0)));
+                children.set(1, inversionMutation(children.get(1)));
+            }
+            else{
+                children.set(0, scrambleMutation(children.get(0)));
+                children.set(1, scrambleMutation(children.get(1)));
+            }
+
+
             generation.addAll(children);
             currentGenerationSize += 2;
         }
