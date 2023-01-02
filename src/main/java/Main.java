@@ -207,14 +207,16 @@ static void measurementsQualitySA(){
                             int reproductionSize = Integer.parseInt(scanner.nextLine());
                             System.out.println("Podaj maksymalną liczbę iteracji: ");
                             int maxIterations = Integer.parseInt(scanner.nextLine());
-                            System.out.println("Podaj współczynnik mutacji: ");
+                            System.out.println("Podaj współczynnik mutacji[0.0 - 1.0]: ");
                             float mutationRate = Float.parseFloat(scanner.nextLine());
+                            System.out.println("Podaj współczynnik krzyżowania [0.0 - 1.0]: ");
+                            float crossoverRate = Float.parseFloat(scanner.nextLine());
                             System.out.println("Podaj rozmiar turnieju: ");
                             int tournamentSize = Integer.parseInt(scanner.nextLine());
                             System.out.println("Podaj docelowy koszt: ");
                             int targetFitness = Integer.parseInt(scanner.nextLine());
 
-                            System.out.println(tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize, reproductionSize,  maxIterations, mutationRate, tournamentSize, targetFitness, mutationType));
+                            System.out.println(tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize, reproductionSize,  maxIterations, mutationRate, crossoverRate, tournamentSize, targetFitness, mutationType));
                         }
 
                         else

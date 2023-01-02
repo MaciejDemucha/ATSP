@@ -9,6 +9,7 @@ public class Solution {
     private int reproductionSize;
     private int maxIterations;
     private float mutationRate;
+    private float crossoverRate;
     private int[][] travelPrices;
     private int startingCity;
     private int targetFitness;
@@ -16,7 +17,7 @@ public class Solution {
     private SelectionType selectionType;
     private MutationType mutationType;
 
-    public Solution(int numberOfCities, SelectionType selectionType, int[][] travelPrices, int startingCity, int generationSize, int reproductionSize, int maxIterations, float mutationRate, int tournamentSize, int targetFitness, MutationType mutationType){
+    public Solution(int numberOfCities, SelectionType selectionType, int[][] travelPrices, int startingCity, int generationSize, int reproductionSize, int maxIterations, float mutationRate, float crossoverRate, int tournamentSize, int targetFitness, MutationType mutationType){
         this.numberOfCities = numberOfCities;
         this.genomeSize = numberOfCities-1;
         this.selectionType = selectionType;
@@ -29,6 +30,7 @@ public class Solution {
         this.reproductionSize = reproductionSize;
         this.maxIterations = maxIterations;
         this.mutationRate = mutationRate;
+        this.crossoverRate = crossoverRate;
         this.tournamentSize = tournamentSize;
     }
 
@@ -110,6 +112,7 @@ public class Solution {
     public List<SalesmanGenome> crossover(List<SalesmanGenome> parents) {
         // Housekeeping
         Random random = new Random();
+
         int breakpoint = random.nextInt(genomeSize);
         List<SalesmanGenome> children = new ArrayList<>();
 
@@ -223,9 +226,16 @@ public class Solution {
     public List<SalesmanGenome> createGeneration(List<SalesmanGenome> population) {
         List<SalesmanGenome> generation = new ArrayList<>();
         int currentGenerationSize = 0;
+        Random random = new Random();
         while (currentGenerationSize < generationSize) {
+            float crossover = random.nextFloat();
+
             List<SalesmanGenome> parents = pickNRandomElements(population, 2);
-            List<SalesmanGenome> children = crossover(parents);
+            List<SalesmanGenome> children = new ArrayList<>(parents);
+
+            if(crossover < crossoverRate)
+                children = crossover(parents);
+
 
             if (mutationType == MutationType.SWAP){
                 children.set(0, mutate(children.get(0)));

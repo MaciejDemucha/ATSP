@@ -583,9 +583,9 @@ public class TSP {
         return result;
     }
 
-    public SalesmanGenome geneticAlgoritmSolution(SelectionType selectionType, int startingCity, int generationSize, int reproductionSize, int maxIterations, float mutationRate, int tournamentSize, int targetFitness, MutationType mutationType){
+    public SalesmanGenome geneticAlgoritmSolution(SelectionType selectionType, int startingCity, int generationSize, int reproductionSize, int maxIterations, float mutationRate, float crossoverRate, int tournamentSize, int targetFitness, MutationType mutationType){
         int numberOfCities = distance.length;
-        Solution geneticAlgoritm = new Solution(numberOfCities, SelectionType.TOURNAMENT, distance, 0, generationSize,  reproductionSize,  maxIterations,  mutationRate, tournamentSize, targetFitness, mutationType);
+        Solution geneticAlgoritm = new Solution(numberOfCities, SelectionType.TOURNAMENT, distance, 0, generationSize,  reproductionSize,  maxIterations,  mutationRate, crossoverRate, tournamentSize, targetFitness, mutationType);
 
         return geneticAlgoritm.optimize();
     }
