@@ -1,4 +1,6 @@
+import Genetic.SalesmanGenome;
 import Genetic.SelectionType;
+import Genetic.Solution;
 
 import java.util.*;
 
@@ -7,7 +9,40 @@ public class Main {
         menu();
         //measurements(40);
         //measurementsQualitySA();
+        //inversionMutation();
     }
+
+
+
+   /* public static void inversionMutation() {
+        Random random = new Random();
+
+            List<Integer> genome = new ArrayList<>();
+            genome.add(1);
+            genome.add(2);
+            genome.add(3);
+            genome.add(4);
+            genome.add(5);
+            genome.add(6);
+            genome.add(7);
+            genome.add(8);
+            genome.add(9);
+
+
+            int start = Solution.randInt(0, genome.size()-2);
+            int end = Solution.randInt(start+1, genome.size()-2);
+        System.out.println(start + " " + end);
+
+            List reversedPart = Solution.reverseArray(genome, start, end);
+
+            int indexOfReversedPart = 0;
+
+            for(int i = start; i <= end; i++){
+                genome.set(i, (Integer) reversedPart.get(indexOfReversedPart));
+                indexOfReversedPart++;
+            }
+        System.out.println(genome);
+    }*/
 
 static void measurementsQualitySA(){
     TSP tsp;

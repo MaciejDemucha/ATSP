@@ -1,9 +1,6 @@
 package Genetic;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Solution {
     private int generationSize;
@@ -149,14 +146,55 @@ public class Solution {
         return salesman;
     }
 
+    public static int randInt(int min, int max) {
+        return (int)Math.floor(Math.random()*(max-min+1)+min);
+    }
+
+    public static List<Integer> reverseArray(List<Integer> startArray, int start, int n) {
+        List destArray = new ArrayList();
+
+        for (int i = start; i <= n; i++) {
+            destArray.add(startArray.get(i));
+
+        }
+        Collections.reverse(destArray);
+
+        return destArray;
+    }
+
+    public SalesmanGenome inversionMutation(SalesmanGenome salesman) {
+        Random random = new Random();
+        float mutate = random.nextFloat();
+        if (mutate < mutationRate) {
+            List<Integer> genome = salesman.getGenome();
+
+            int start = randInt(0, genome.size()-2);
+            int end = randInt(start+1, genome.size()-2);
+
+
+            List reversedPart = reverseArray(genome, start, end);
+            int indexOfReversedPart = 0;
+
+            for(int i = start; i <= end; i++){
+                genome.set(i, (Integer) reversedPart.get(indexOfReversedPart));
+                indexOfReversedPart++;
+            }
+
+            return new SalesmanGenome(genome, numberOfCities, travelPrices, startingCity);
+        }
+        return salesman;
+    }
+
     public List<SalesmanGenome> createGeneration(List<SalesmanGenome> population) {
         List<SalesmanGenome> generation = new ArrayList<>();
         int currentGenerationSize = 0;
         while (currentGenerationSize < generationSize) {
             List<SalesmanGenome> parents = pickNRandomElements(population, 2);
             List<SalesmanGenome> children = crossover(parents);
-            children.set(0, mutate(children.get(0)));
-            children.set(1, mutate(children.get(1)));
+            //children.set(0, mutate(children.get(0)));
+            //children.set(1, mutate(children.get(1)));
+            children.set(0, inversionMutation(children.get(0)));
+            children.set(1, inversionMutation(children.get(1)));
             generation.addAll(children);
             currentGenerationSize += 2;
         }
