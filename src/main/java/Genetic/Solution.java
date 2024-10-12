@@ -296,30 +296,30 @@ public class Solution {
             List<SalesmanGenome> parents = pickNRandomElements(population, 2);
             List<SalesmanGenome> children = new ArrayList<>(parents);
 
-            if(crossover < crossoverRate)
+            if(crossover < crossoverRate) {
                 if(crossoverType == CrossoverType.CLASSIC)
                     children = crossover(parents);
-            else if(crossoverType == CrossoverType.OX)
+                else if(crossoverType == CrossoverType.OX)
                     children = crossoverOX(parents);
-
-
-            if (mutationType == MutationType.SWAP){
-                children.set(0, mutate(children.get(0)));
-                children.set(1, mutate(children.get(1)));
+                else if(crossoverType == CrossoverType.CX)
+                    children = crossoverOX(parents);
             }
 
-            else if (mutationType == MutationType.INVERSE) {
-                children.set(0, inversionMutation(children.get(0)));
-                children.set(1, inversionMutation(children.get(1)));
+            for (SalesmanGenome child: children) {
+                int index = children.indexOf(child);
+                if (mutationType == MutationType.SWAP){
+                    children.set(index, mutate(children.get(index)));
+                }
+                else if (mutationType == MutationType.INVERSE) {
+                    children.set(index, inversionMutation(children.get(index)));
+                }
+                else{
+                    children.set(index, scrambleMutation(children.get(index)));
+                }
             }
-            else{
-                children.set(0, scrambleMutation(children.get(0)));
-                children.set(1, scrambleMutation(children.get(1)));
-            }
-
 
             generation.addAll(children);
-            currentGenerationSize += 2;
+            currentGenerationSize += children.size();
         }
         return generation;
     }
