@@ -2,5 +2,7 @@ package Genetic;
 
 public enum CrossoverType {
     CLASSIC,
-    OX
+    OX,
+
+    CX
 }

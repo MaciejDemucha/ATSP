@@ -138,6 +138,40 @@ public class Solution {
         return childList;
     }
 
+    public List<SalesmanGenome> crossoverCX(List<SalesmanGenome> parents) {
+
+        List<Integer> parent1Genome = new LinkedList<>(parents.get(0).getGenome());
+        List<Integer> parent2Genome = new LinkedList<>(parents.get(1).getGenome());
+        List<Integer> cycle = new LinkedList<>();
+        Integer start = parent1Genome.get(0);
+        int indexOfCorresponding = 0;
+        cycle.add(start);
+        while(true) {
+            Integer correspoding = parent2Genome.get(indexOfCorresponding);
+            indexOfCorresponding = parent1Genome.indexOf(correspoding);
+            if(correspoding.equals(start))
+                break;
+            cycle.add(correspoding);
+        }
+
+        List<Integer> child = new LinkedList<>(parent1Genome);
+        List<Integer> orderedCycle = new LinkedList<>(parent2Genome);
+        orderedCycle.removeIf(city -> !cycle.contains(city));
+
+        for (Integer city: orderedCycle) {
+            child.set(child.indexOf(city), -1);
+        }
+
+        for (Integer city: orderedCycle) {
+            child.set(child.indexOf(-1), city);
+        }
+
+        List<SalesmanGenome> childList = new ArrayList<>();
+        childList.add(new SalesmanGenome(child, numberOfCities, travelPrices, startingCity));
+
+        return childList;
+    }
+
     public List<SalesmanGenome> crossover(List<SalesmanGenome> parents) {
         // Housekeeping
         Random random = new Random();

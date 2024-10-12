@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        //menu();
+        menu();
         //measurementsTime(40);
         //measurementsQualitySA();
     }
@@ -167,10 +167,10 @@ static void measurementsQualitySA(){
                             else mutationType = MutationType.SCRAMBLE;
 
                             System.out.println("Wybierz metodę krzyżowania: ");
-                            System.out.println("Klasyczne: 1");
+                            System.out.println("CX: 1");
                             System.out.println("OX: 2");
                             choice = Integer.parseInt(scanner.nextLine());
-                            if(choice == 1)  crossoverType = CrossoverType.CLASSIC;
+                            if(choice == 1)  crossoverType = CrossoverType.CX;
                             else crossoverType = CrossoverType.OX;
 
                             System.out.println("Podaj wielkość początkowej generacji: ");
