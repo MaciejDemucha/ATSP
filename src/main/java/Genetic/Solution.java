@@ -6,13 +6,11 @@ public class Solution {
     private int generationSize;
     private int genomeSize;
     private int numberOfCities;
-    private int reproductionSize;
     private int maxIterations;
     private float mutationRate;
     private float crossoverRate;
     private int[][] travelPrices;
     private int startingCity;
-    private int targetFitness;
     private int tournamentSize;
     private SelectionType selectionType;
     private MutationType mutationType;
@@ -20,8 +18,8 @@ public class Solution {
     private CrossoverType crossoverType;
 
     public Solution(int numberOfCities, SelectionType selectionType, int[][] travelPrices, int startingCity,
-                    int generationSize, int reproductionSize, int maxIterations, float mutationRate,
-                    float crossoverRate, int tournamentSize, int targetFitness, MutationType mutationType, CrossoverType crossoverType){
+                    int generationSize, int maxIterations, float mutationRate,
+                    float crossoverRate, int tournamentSize, MutationType mutationType, CrossoverType crossoverType){
         this.numberOfCities = numberOfCities;
         this.genomeSize = numberOfCities-1;
         this.selectionType = selectionType;
@@ -29,10 +27,8 @@ public class Solution {
         this.crossoverType = crossoverType;
         this.travelPrices = travelPrices;
         this.startingCity = startingCity;
-        this.targetFitness = targetFitness;
 
         this.generationSize = generationSize;
-        this.reproductionSize = reproductionSize;
         this.maxIterations = maxIterations;
         this.mutationRate = mutationRate;
         this.crossoverRate = crossoverRate;
@@ -47,12 +43,9 @@ public class Solution {
         return population;
     }
 
-    // We select reproductionSize genomes based on the method
-// predefined in the attribute selectionType
     public List<SalesmanGenome> selection(List<SalesmanGenome> population) {
         List<SalesmanGenome> selected = new ArrayList<>();
-        SalesmanGenome winner;
-        for (int i=0; i < reproductionSize; i++) {
+        for (int i=0; i < population.size(); i++) {
             if (selectionType == SelectionType.ROULETTE) {
                 selected.add(rouletteSelection(population));
             }
@@ -337,8 +330,6 @@ public class Solution {
             List<SalesmanGenome> selected = selection(population);
             population = createGeneration(selected);
             globalBestGenome = Collections.min(population);
-            if (globalBestGenome.getFitness() < targetFitness)
-                break;
         }
         return globalBestGenome;
     }

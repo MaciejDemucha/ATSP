@@ -169,14 +169,14 @@ static void measurementsQualitySA(){
                             System.out.println("Wybierz metodę krzyżowania: ");
                             System.out.println("CX: 1");
                             System.out.println("OX: 2");
+                            System.out.println("One-point: 3");
                             choice = Integer.parseInt(scanner.nextLine());
                             if(choice == 1)  crossoverType = CrossoverType.CX;
-                            else crossoverType = CrossoverType.OX;
+                            else if(choice == 2)  crossoverType = CrossoverType.OX;
+                            else crossoverType = CrossoverType.CLASSIC;
 
                             System.out.println("Podaj wielkość początkowej generacji: ");
                             int generationSize = Integer.parseInt(scanner.nextLine());
-                            System.out.println("Podaj ilość reprodukowanych genomów: ");
-                            int reproductionSize = Integer.parseInt(scanner.nextLine());
                             System.out.println("Podaj maksymalną liczbę iteracji: ");
                             int maxIterations = Integer.parseInt(scanner.nextLine());
                             System.out.println("Podaj współczynnik mutacji[0.0 - 1.0]: ");
@@ -185,11 +185,9 @@ static void measurementsQualitySA(){
                             float crossoverRate = Float.parseFloat(scanner.nextLine());
                             System.out.println("Podaj rozmiar turnieju: ");
                             int tournamentSize = Integer.parseInt(scanner.nextLine());
-                            System.out.println("Podaj docelowy koszt: ");
-                            int targetFitness = Integer.parseInt(scanner.nextLine());
 
                             System.out.println(tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize,
-                                    reproductionSize,  maxIterations, mutationRate, crossoverRate, tournamentSize, targetFitness, mutationType, crossoverType));
+                                    maxIterations, mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType));
                         }
 
                         else
