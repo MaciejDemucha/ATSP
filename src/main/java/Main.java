@@ -1,49 +1,13 @@
-import Genetic.MutationType;
-import Genetic.SalesmanGenome;
-import Genetic.SelectionType;
-import Genetic.Solution;
+import Genetic.*;
 
 import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        menu();
-        //measurements(40);
+        //menu();
+        //measurementsTime(40);
         //measurementsQualitySA();
-       // inversionMutation();
     }
-
-
-
-    /*public static void inversionMutation() {
-        Random random = new Random();
-
-            List<Integer> genome = new ArrayList<>();
-            genome.add(1);
-            genome.add(2);
-            genome.add(3);
-            genome.add(4);
-            genome.add(5);
-            genome.add(6);
-            genome.add(7);
-            genome.add(8);
-            genome.add(9);
-
-
-            int start = Solution.randInt(0, genome.size()-2);
-            int end = Solution.randInt(start+1, genome.size()-2);
-        System.out.println(start + " " + end);
-
-            List reversedPart = Solution.shuffleArray(genome, start, end);
-
-            int indexOfReversedPart = 0;
-
-            for(int i = start; i <= end; i++){
-                genome.set(i, (Integer) reversedPart.get(indexOfReversedPart));
-                indexOfReversedPart++;
-            }
-        System.out.println(genome);
-    }*/
 
 static void measurementsQualitySA(){
     TSP tsp;
@@ -98,7 +62,7 @@ static void measurementsQualitySA(){
     System.out.println("Tour: " + result.getPath());
     System.out.println("*********************************************************************************");
 }
-    static void measurements(int size){
+    static void measurementsTime(int size){
         TSP tsp;
         System.out.println("Size: " + size);
         long start = System.nanoTime();
@@ -183,6 +147,7 @@ static void measurementsQualitySA(){
                         if(tsp != null){
                             SelectionType selectionType;
                             MutationType mutationType;
+                            CrossoverType crossoverType;
                             int startingCity = 0;
 
                             System.out.println("Wybierz metodę selekcji osobników do krzyżowania: ");
@@ -201,6 +166,13 @@ static void measurementsQualitySA(){
                             else if(choice == 2) mutationType = MutationType.INVERSE;
                             else mutationType = MutationType.SCRAMBLE;
 
+                            System.out.println("Wybierz metodę krzyżowania: ");
+                            System.out.println("Klasyczne: 1");
+                            System.out.println("OX: 2");
+                            choice = Integer.parseInt(scanner.nextLine());
+                            if(choice == 1)  crossoverType = CrossoverType.CLASSIC;
+                            else crossoverType = CrossoverType.OX;
+
                             System.out.println("Podaj wielkość początkowej generacji: ");
                             int generationSize = Integer.parseInt(scanner.nextLine());
                             System.out.println("Podaj ilość reprodukowanych genomów: ");
@@ -216,7 +188,8 @@ static void measurementsQualitySA(){
                             System.out.println("Podaj docelowy koszt: ");
                             int targetFitness = Integer.parseInt(scanner.nextLine());
 
-                            System.out.println(tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize, reproductionSize,  maxIterations, mutationRate, crossoverRate, tournamentSize, targetFitness, mutationType));
+                            System.out.println(tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize,
+                                    reproductionSize,  maxIterations, mutationRate, crossoverRate, tournamentSize, targetFitness, mutationType, crossoverType));
                         }
 
                         else

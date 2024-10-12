@@ -1,7 +1,4 @@
-import Genetic.MutationType;
-import Genetic.SalesmanGenome;
-import Genetic.SelectionType;
-import Genetic.Solution;
+import Genetic.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -583,9 +580,12 @@ public class TSP {
         return result;
     }
 
-    public SalesmanGenome geneticAlgoritmSolution(SelectionType selectionType, int startingCity, int generationSize, int reproductionSize, int maxIterations, float mutationRate, float crossoverRate, int tournamentSize, int targetFitness, MutationType mutationType){
+    public SalesmanGenome geneticAlgoritmSolution(SelectionType selectionType, int startingCity, int generationSize,
+                                                  int reproductionSize, int maxIterations, float mutationRate, float crossoverRate,
+                                                  int tournamentSize, int targetFitness, MutationType mutationType, CrossoverType crossoverType){
         int numberOfCities = distance.length;
-        Solution geneticAlgoritm = new Solution(numberOfCities, SelectionType.TOURNAMENT, distance, 0, generationSize,  reproductionSize,  maxIterations,  mutationRate, crossoverRate, tournamentSize, targetFitness, mutationType);
+        Solution geneticAlgoritm = new Solution(numberOfCities, SelectionType.TOURNAMENT, distance, 0, generationSize,
+                reproductionSize,  maxIterations,  mutationRate, crossoverRate, tournamentSize, targetFitness, mutationType, crossoverType);
 
         return geneticAlgoritm.optimize();
     }
