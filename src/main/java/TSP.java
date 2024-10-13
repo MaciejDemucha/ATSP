@@ -229,7 +229,6 @@ public class TSP {
             min = firstMinRowGreedy(cityNumber, getMatrix());
             distance += min[1];
             cityNumber = min[0];
-            //System.out.println(cityNumber);
             count++;
         }
 
@@ -582,10 +581,10 @@ public class TSP {
 
     public SalesmanGenome geneticAlgoritmSolution(SelectionType selectionType, int startingCity, int generationSize,
                                                   int maxIterations, float mutationRate, float crossoverRate,
-                                                  int tournamentSize, MutationType mutationType, CrossoverType crossoverType){
+                                                  int tournamentSize, MutationType mutationType, CrossoverType crossoverType, InitialSolution initialSolution){
         int numberOfCities = distance.length;
-        Solution geneticAlgoritm = new Solution(numberOfCities, selectionType, distance, 0, generationSize,
-                maxIterations,  mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType);
+        Solution geneticAlgoritm = new Solution(numberOfCities, selectionType, distance, startingCity, generationSize,
+                maxIterations,  mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, initialSolution);
 
         return geneticAlgoritm.optimize();
     }

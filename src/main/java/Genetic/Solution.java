@@ -17,9 +17,11 @@ public class Solution {
 
     private CrossoverType crossoverType;
 
+    private InitialSolution initialSolution;
+
     public Solution(int numberOfCities, SelectionType selectionType, int[][] travelPrices, int startingCity,
                     int generationSize, int maxIterations, float mutationRate,
-                    float crossoverRate, int tournamentSize, MutationType mutationType, CrossoverType crossoverType){
+                    float crossoverRate, int tournamentSize, MutationType mutationType, CrossoverType crossoverType, InitialSolution initialSolution){
         this.numberOfCities = numberOfCities;
         this.genomeSize = numberOfCities-1;
         this.selectionType = selectionType;
@@ -33,12 +35,13 @@ public class Solution {
         this.mutationRate = mutationRate;
         this.crossoverRate = crossoverRate;
         this.tournamentSize = tournamentSize;
+        this.initialSolution = initialSolution;
     }
 
     public List<SalesmanGenome> initialPopulation(){
         List<SalesmanGenome> population = new ArrayList<>();
-        for(int i=0; i<generationSize; i++){
-            population.add(new SalesmanGenome(numberOfCities, travelPrices, startingCity));
+        for(int i=0; i < generationSize; i++){
+            population.add(new SalesmanGenome(numberOfCities, travelPrices, startingCity, initialSolution));
         }
         return population;
     }
@@ -112,8 +115,8 @@ public class Solution {
         int start = randInt(0, genomeSize-2);
         int end = randInt(start+1, genomeSize-2);
 
-        List<Integer> parent1Genome = new LinkedList<>(parents.get(0).getGenome());
-        List<Integer> parent2Genome = new LinkedList<>(parents.get(1).getGenome());
+        List<Integer> parent1Genome = new LinkedList<>(parents.get(0).getCitySequence());
+        List<Integer> parent2Genome = new LinkedList<>(parents.get(1).getCitySequence());
 
         List<Integer> sublist = parent1Genome.subList(start, end + 1);
         List<Integer> child = new LinkedList<>(parent2Genome);
@@ -133,8 +136,8 @@ public class Solution {
 
     public List<SalesmanGenome> crossoverCX(List<SalesmanGenome> parents) {
 
-        List<Integer> parent1Genome = new LinkedList<>(parents.get(0).getGenome());
-        List<Integer> parent2Genome = new LinkedList<>(parents.get(1).getGenome());
+        List<Integer> parent1Genome = new LinkedList<>(parents.get(0).getCitySequence());
+        List<Integer> parent2Genome = new LinkedList<>(parents.get(1).getCitySequence());
         List<Integer> cycle = new LinkedList<>();
         Integer start = parent1Genome.get(0);
         int indexOfCorresponding = 0;
@@ -174,8 +177,8 @@ public class Solution {
 
         // Copy parental genomes - we copy so we wouldn't modify in case they were
         // chosen to participate in crossover multiple times
-        List<Integer> parent1Genome = new ArrayList<>(parents.get(0).getGenome());
-        List<Integer> parent2Genome = new ArrayList<>(parents.get(1).getGenome());
+        List<Integer> parent1Genome = new ArrayList<>(parents.get(0).getCitySequence());
+        List<Integer> parent2Genome = new ArrayList<>(parents.get(1).getCitySequence());
 
         // Creating child 1
         for (int i = 0; i < breakpoint; i++) {
@@ -184,7 +187,7 @@ public class Solution {
             Collections.swap(parent1Genome, parent1Genome.indexOf(newVal), i);
         }
         children.add(new SalesmanGenome(parent1Genome, numberOfCities, travelPrices, startingCity));
-        parent1Genome = parents.get(0).getGenome(); // Reseting the edited parent
+        parent1Genome = parents.get(0).getCitySequence(); // Reseting the edited parent
 
         // Creating child 2
         for (int i = breakpoint; i < genomeSize; i++) {
@@ -200,7 +203,7 @@ public class Solution {
         Random random = new Random();
         float mutate = random.nextFloat();
         if (mutate < mutationRate) {
-            List<Integer> genome = salesman.getGenome();
+            List<Integer> genome = salesman.getCitySequence();
             Collections.swap(genome, random.nextInt(genomeSize), random.nextInt(genomeSize));
             return new SalesmanGenome(genome, numberOfCities, travelPrices, startingCity);
         }
@@ -237,7 +240,7 @@ public class Solution {
         Random random = new Random();
         float mutate = random.nextFloat();
         if (mutate < mutationRate) {
-            List<Integer> genome = salesman.getGenome();
+            List<Integer> genome = salesman.getCitySequence();
 
             int start = randInt(0, genome.size()-2);
             int end = randInt(start+1, genome.size()-2);
@@ -260,7 +263,7 @@ public class Solution {
         Random random = new Random();
         float mutate = random.nextFloat();
         if (mutate < mutationRate) {
-            List<Integer> genome = salesman.getGenome();
+            List<Integer> genome = salesman.getCitySequence();
 
             int start = randInt(0, genome.size()-2);
             int end = randInt(start+1, genome.size()-2);
@@ -290,12 +293,12 @@ public class Solution {
             List<SalesmanGenome> children = new ArrayList<>(parents);
 
             if(crossover < crossoverRate) {
-                if(crossoverType == CrossoverType.CLASSIC)
+                if(crossoverType == CrossoverType.ONEPOINT)
                     children = crossover(parents);
                 else if(crossoverType == CrossoverType.OX)
                     children = crossoverOX(parents);
                 else if(crossoverType == CrossoverType.CX)
-                    children = crossoverOX(parents);
+                    children = crossoverCX(parents);
             }
 
             for (SalesmanGenome child: children) {

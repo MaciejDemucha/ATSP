@@ -1,7 +1,7 @@
 package Genetic;
 
 public enum CrossoverType {
-    CLASSIC,
+    ONEPOINT,
     OX,
 
     CX

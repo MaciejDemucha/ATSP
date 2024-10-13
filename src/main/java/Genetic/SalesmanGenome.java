@@ -8,13 +8,13 @@ public class SalesmanGenome implements Comparable {
 
     // The list with the cities in order in which they should be visited
 // This sequence represents the solution to the problem
-    List<Integer> genome;
+    List<Integer> citySequence;
 
     // Travel prices are handy to be able to calculate fitness
     int[][] travelPrices;
 
     // While the starting city doesn't change the solution of the problem,
-// it's handy to just pick one so you could rely on it being the same
+// it's handy to just pick one, so you could rely on it being the same
 // across genomes
     int startingCity;
 
@@ -23,18 +23,22 @@ public class SalesmanGenome implements Comparable {
     int fitness;
 
     // Generates a random salesman
-    public SalesmanGenome(int numberOfCities, int[][] travelPrices, int startingCity) {
+    public SalesmanGenome(int numberOfCities, int[][] travelPrices, int startingCity, InitialSolution initialSolution) {
         this.travelPrices = travelPrices;
         this.startingCity = startingCity;
         this.numberOfCities = numberOfCities;
 
-        this.genome = randomSalesman();
+        if(initialSolution.equals(InitialSolution.GREEDY))
+            this.citySequence = greedySolution();
+        else
+            this.citySequence = randomSolution();
+
         this.fitness = this.calculateFitness();
     }
 
     // Generates a salesman with a user-defined genome
     public SalesmanGenome(List<Integer> permutationOfCities, int numberOfCities, int[][] travelPrices, int startingCity) {
-        this.genome = permutationOfCities;
+        this.citySequence = permutationOfCities;
         this.travelPrices = travelPrices;
         this.startingCity = startingCity;
         this.numberOfCities = numberOfCities;
@@ -42,8 +46,8 @@ public class SalesmanGenome implements Comparable {
         this.fitness = this.calculateFitness();
     }
 
-    public List<Integer> getGenome() {
-        return genome;
+    public List<Integer> getCitySequence() {
+        return citySequence;
     }
 
     public int getStartingCity() {
@@ -59,9 +63,9 @@ public class SalesmanGenome implements Comparable {
     }
 
     // Generates a random genome
-// Genomes are permutations of the list of cities, except the starting city
+// Genomes are permutations of the list of cities, except the starting city,
 // so we add them all to a list and shuffle
-    private List<Integer> randomSalesman() {
+    private List<Integer> randomSolution() {
         List<Integer> result = new ArrayList<Integer>();
         for (int i = 0; i < numberOfCities; i++) {
             if (i != startingCity)
@@ -71,19 +75,47 @@ public class SalesmanGenome implements Comparable {
         return result;
     }
 
+    private List<Integer> greedySolution() {
+        List<Integer> result = new ArrayList<>();
+        boolean[] visited = new boolean[numberOfCities];
+        int currentCity = startingCity;
+
+        visited[currentCity] = true;
+        for (int i = 1; i < numberOfCities; i++) {
+            int nearestCity = -1;
+            int nearestDistance = Integer.MAX_VALUE;
+
+            // Find the nearest unvisited city
+            for (int nextCity = 0; nextCity < numberOfCities; nextCity++) {
+                if (!visited[nextCity] && travelPrices[currentCity][nextCity] < nearestDistance) {
+                    nearestCity = nextCity;
+                    nearestDistance = travelPrices[currentCity][nextCity];
+                }
+            }
+
+            if (nearestCity != -1) {
+                result.add(nearestCity);
+                visited[nearestCity] = true;
+                currentCity = nearestCity;
+            }
+        }
+
+        return result;
+    }
+
     public int calculateFitness() {
         int fitness = 0;
         int currentCity = startingCity;
 
         // Calculating path cost
-        for (int gene : genome) {
+        for (int gene : citySequence) {
             fitness += travelPrices[currentCity][gene];
             currentCity = gene;
         }
 
         // We have to add going back to the starting city to complete the circle
         // the genome is missing the starting city, and indexing starts at 0, which is why we subtract 2
-        fitness += travelPrices[genome.get(numberOfCities-2)][startingCity];
+        fitness += travelPrices[citySequence.get(numberOfCities-2)][startingCity];
 
         return fitness;
     }
@@ -104,7 +136,7 @@ public class SalesmanGenome implements Comparable {
         StringBuilder sb = new StringBuilder();
         sb.append("Path: ");
         sb.append(startingCity);
-        for ( int gene: genome ) {
+        for ( int gene: citySequence) {
             sb.append(" ");
             sb.append(gene);
         }

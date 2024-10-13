@@ -1,12 +1,14 @@
 import Genetic.*;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class Main {
-    public static void main(String[] args) {
-        menu();
-        //measurementsTime(40);
-        //measurementsQualitySA();
+    public static void main(String[] args) throws IOException {
+        //menu();
+        measurementsQualityGA("output.txt");
     }
 
 static void measurementsQualitySA(){
@@ -62,6 +64,34 @@ static void measurementsQualitySA(){
     System.out.println("Tour: " + result.getPath());
     System.out.println("*********************************************************************************");
 }
+
+    static void measurementsQualityGA(String fileName) throws IOException {
+        TSP tsp;
+        tsp = TSP.readFromFileScanner("tsp_17.txt");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+
+        SelectionType selectionType = SelectionType.TOURNAMENT;
+        int startingCity = 0;
+        int generationSize = 1000;
+        int maxIterations = 1000;
+        float mutationRate = 0.1F;
+        float crossoverRate = 0.7F;
+        int tournamentSize = 5;
+        MutationType mutationType = MutationType.INVERSE;
+        CrossoverType crossoverType = CrossoverType.CX;
+        InitialSolution initialSolution = InitialSolution.GREEDY;
+        for (int i = 0; i < 10; i++) {
+            SalesmanGenome solution = tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize,
+                    maxIterations, mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, initialSolution);
+            System.out.println(solution);
+            System.out.println("*********************************************************************************");
+            writer.write(solution.getFitness() + "\n");
+        }
+
+        writer.close();
+
+    }
+
     static void measurementsTime(int size){
         TSP tsp;
         System.out.println("Size: " + size);
@@ -148,6 +178,7 @@ static void measurementsQualitySA(){
                             SelectionType selectionType;
                             MutationType mutationType;
                             CrossoverType crossoverType;
+                            InitialSolution initialSolution;
                             int startingCity = 0;
 
                             System.out.println("Wybierz metodę selekcji osobników do krzyżowania: ");
@@ -173,7 +204,14 @@ static void measurementsQualitySA(){
                             choice = Integer.parseInt(scanner.nextLine());
                             if(choice == 1)  crossoverType = CrossoverType.CX;
                             else if(choice == 2)  crossoverType = CrossoverType.OX;
-                            else crossoverType = CrossoverType.CLASSIC;
+                            else crossoverType = CrossoverType.ONEPOINT;
+
+                            System.out.println("Wybierz metodę wyznaczania pierwszego rozwiązania: ");
+                            System.out.println("losowa: 1");
+                            System.out.println("zachłanna: 2");
+                            choice = Integer.parseInt(scanner.nextLine());
+                            if(choice == 1)  initialSolution = InitialSolution.RANDOM;
+                            else initialSolution = InitialSolution.GREEDY;
 
                             System.out.println("Podaj wielkość początkowej generacji: ");
                             int generationSize = Integer.parseInt(scanner.nextLine());
@@ -187,7 +225,7 @@ static void measurementsQualitySA(){
                             int tournamentSize = Integer.parseInt(scanner.nextLine());
 
                             System.out.println(tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize,
-                                    maxIterations, mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType));
+                                    maxIterations, mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, initialSolution));
                         }
 
                         else
