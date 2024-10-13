@@ -8,8 +8,9 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws IOException {
         //menu();
-        //measurementsQualityGA("outputGA.txt");
+        measurementsQualityGA("outputGA.txt");
         measurementsQualityGreedy("outputGreedy.txt");
+        measurementsQualityRandom("outputRandom.txt");
     }
 
 static void measurementsQualitySA(){
@@ -71,18 +72,9 @@ static void measurementsQualitySA(){
         tsp = TSP.readFromFileScanner("tsp_17.txt");
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 
-        SelectionType selectionType = SelectionType.TOURNAMENT;
         int startingCity = 0;
-        int generationSize = 1000;
-        int maxIterations = 1000;
-        float mutationRate = 0.1F;
-        float crossoverRate = 0.7F;
-        int tournamentSize = 5;
-        MutationType mutationType = MutationType.INVERSE;
-        CrossoverType crossoverType = CrossoverType.CX;
         while (true) {
-            SalesmanGenome solution = tsp.greedySolutionSA(selectionType, startingCity, generationSize,
-                    maxIterations, mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType);
+            SalesmanGenome solution = tsp.initialSolutionSA(startingCity, InitialSolution.GREEDY);
             System.out.println(solution);
             System.out.println("*********************************************************************************");
             writer.write(solution.getFitness() + "\n");
@@ -90,6 +82,23 @@ static void measurementsQualitySA(){
             startingCity++;
             if(startingCity >= solution.numberOfCities)
                 break;
+        }
+
+        writer.close();
+
+    }
+
+    static void measurementsQualityRandom(String fileName) throws IOException {
+        TSP tsp;
+        tsp = TSP.readFromFileScanner("tsp_17.txt");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+
+        int startingCity = 0;
+        for (int i = 0; i < 10000; i++) {
+            SalesmanGenome solution = tsp.initialSolutionSA(startingCity, InitialSolution.RANDOM);
+            //System.out.println(solution);
+            //System.out.println("*********************************************************************************");
+            writer.write(solution.getFitness() + "\n");
         }
 
         writer.close();

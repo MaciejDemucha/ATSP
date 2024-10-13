@@ -589,14 +589,14 @@ public class TSP {
         return geneticAlgoritm.optimize();
     }
 
-    public SalesmanGenome greedySolutionSA(SelectionType selectionType, int startingCity, int generationSize,
-                                                  int maxIterations, float mutationRate, float crossoverRate,
-                                                  int tournamentSize, MutationType mutationType, CrossoverType crossoverType){
+    //apart from starting cities all parameters are not relevant
+    public SalesmanGenome initialSolutionSA(int startingCity, InitialSolution initialSolution){
         int numberOfCities = distances.length;
-        Solution geneticAlgoritm = new Solution(numberOfCities, selectionType, distances, startingCity, generationSize,
-                maxIterations,  mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, InitialSolution.GREEDY);
+        Solution geneticAlgoritm = new Solution(numberOfCities, SelectionType.TOURNAMENT, distances, startingCity, 1000,
+                1000,  0.1F, 0.1F, 5, MutationType.INVERSE, CrossoverType.OX, initialSolution);
 
-        return geneticAlgoritm.getGreedySolution();
+        return geneticAlgoritm.getInitialSolution(initialSolution);
     }
+
 
 }

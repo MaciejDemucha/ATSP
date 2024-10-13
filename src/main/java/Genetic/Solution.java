@@ -337,9 +337,9 @@ public class Solution {
         return globalBestGenome;
     }
 
-    public SalesmanGenome getGreedySolution() {
-        SalesmanGenome greedySolution = new SalesmanGenome(numberOfCities, travelPrices, startingCity, InitialSolution.GREEDY);
+    public SalesmanGenome getInitialSolution(InitialSolution initialSolution) {
 
-        return greedySolution;
+        return new SalesmanGenome(numberOfCities, travelPrices, startingCity, initialSolution);
     }
+
 }
