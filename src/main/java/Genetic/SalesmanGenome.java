@@ -18,7 +18,7 @@ public class SalesmanGenome implements Comparable {
 // across genomes
     int startingCity;
 
-    int numberOfCities;
+    public int numberOfCities;
 
     int fitness;
 

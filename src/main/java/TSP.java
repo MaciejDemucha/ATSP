@@ -12,7 +12,7 @@ public class TSP {
 
     boolean[] visitCity;    //tablica zawierająca informację czy dane miasto zostało odwiedzone
     int cities;             //liczba miast
-    int[][] distance;       //macierz odległości między miastami
+    int[][] distances;       //macierz odległości między miastami
 
     int hamiltonCycle;      //długość cyklu Hamiltona znalezionego w metodzie Brute Force
 
@@ -34,23 +34,23 @@ public class TSP {
     }
 
     public int[][] getMatrix() {
-        return distance;
+        return distances;
     }
 
     public int getDistance(int x, int y){
-        return distance[x][y];
+        return distances[x][y];
     }
 
     public void setMatrix(int[][] distance) {
-        this.distance = distance;
+        this.distances = distance;
     }
 
     public void setMatrix(int x, int y) {
-        this.distance = new int[x][y];
+        this.distances = new int[x][y];
     }
 
     public void setDistance(int x, int y, int value) {
-        this.distance[x][y] = value;
+        this.distances[x][y] = value;
     }
 
     /** Wypisanie macieży odległości */
@@ -158,7 +158,7 @@ public class TSP {
      * @param print - czy wyświetlić wyniki
      */
     public void bruteForce(boolean print){
-        hamiltonCycle = findHamiltonianCycle(distance, visitCity, 0, cities, 1, 0, hamiltonCycle);
+        hamiltonCycle = findHamiltonianCycle(distances, visitCity, 0, cities, 1, 0, hamiltonCycle);
         if(print){
             System.out.println("Distance: " + hamiltonCycle);
             System.out.println("Path: " + Arrays.toString(finalPath));
@@ -582,11 +582,21 @@ public class TSP {
     public SalesmanGenome geneticAlgoritmSolution(SelectionType selectionType, int startingCity, int generationSize,
                                                   int maxIterations, float mutationRate, float crossoverRate,
                                                   int tournamentSize, MutationType mutationType, CrossoverType crossoverType, InitialSolution initialSolution){
-        int numberOfCities = distance.length;
-        Solution geneticAlgoritm = new Solution(numberOfCities, selectionType, distance, startingCity, generationSize,
+        int numberOfCities = distances.length;
+        Solution geneticAlgoritm = new Solution(numberOfCities, selectionType, distances, startingCity, generationSize,
                 maxIterations,  mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, initialSolution);
 
         return geneticAlgoritm.optimize();
+    }
+
+    public SalesmanGenome greedySolutionSA(SelectionType selectionType, int startingCity, int generationSize,
+                                                  int maxIterations, float mutationRate, float crossoverRate,
+                                                  int tournamentSize, MutationType mutationType, CrossoverType crossoverType){
+        int numberOfCities = distances.length;
+        Solution geneticAlgoritm = new Solution(numberOfCities, selectionType, distances, startingCity, generationSize,
+                maxIterations,  mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, InitialSolution.GREEDY);
+
+        return geneticAlgoritm.getGreedySolution();
     }
 
 }

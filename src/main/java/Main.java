@@ -8,7 +8,8 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws IOException {
         //menu();
-        measurementsQualityGA("output.txt");
+        //measurementsQualityGA("outputGA.txt");
+        measurementsQualityGreedy("outputGreedy.txt");
     }
 
 static void measurementsQualitySA(){
@@ -64,6 +65,36 @@ static void measurementsQualitySA(){
     System.out.println("Tour: " + result.getPath());
     System.out.println("*********************************************************************************");
 }
+
+    static void measurementsQualityGreedy(String fileName) throws IOException {
+        TSP tsp;
+        tsp = TSP.readFromFileScanner("tsp_17.txt");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+
+        SelectionType selectionType = SelectionType.TOURNAMENT;
+        int startingCity = 0;
+        int generationSize = 1000;
+        int maxIterations = 1000;
+        float mutationRate = 0.1F;
+        float crossoverRate = 0.7F;
+        int tournamentSize = 5;
+        MutationType mutationType = MutationType.INVERSE;
+        CrossoverType crossoverType = CrossoverType.CX;
+        while (true) {
+            SalesmanGenome solution = tsp.greedySolutionSA(selectionType, startingCity, generationSize,
+                    maxIterations, mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType);
+            System.out.println(solution);
+            System.out.println("*********************************************************************************");
+            writer.write(solution.getFitness() + "\n");
+
+            startingCity++;
+            if(startingCity >= solution.numberOfCities)
+                break;
+        }
+
+        writer.close();
+
+    }
 
     static void measurementsQualityGA(String fileName) throws IOException {
         TSP tsp;
