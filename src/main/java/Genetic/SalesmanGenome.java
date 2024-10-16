@@ -58,10 +58,6 @@ public class SalesmanGenome implements Comparable {
         return fitness;
     }
 
-    public void setFitness(int fitness) {
-        this.fitness = fitness;
-    }
-
     // Generates a random genome
 // Genomes are permutations of the list of cities, except the starting city,
 // so we add them all to a list and shuffle

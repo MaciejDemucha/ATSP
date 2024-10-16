@@ -3,14 +3,15 @@ import Genetic.*;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         //menu();
-        measurementsQualityGA("outputGA.txt");
-        measurementsQualityGreedy("outputGreedy.txt");
-        measurementsQualityRandom("outputRandom.txt");
+        measurementsQualityGA(Paths.get("output", "outputGA.txt").toString());
+       // measurementsQualityGreedy(Paths.get("output", "outputGreedy.txt").toString());
+       // measurementsQualityRandom(Paths.get("output", "outputRandom.txt").toString());
     }
 
 static void measurementsQualitySA(){
@@ -69,7 +70,7 @@ static void measurementsQualitySA(){
 
     static void measurementsQualityGreedy(String fileName) throws IOException {
         TSP tsp;
-        tsp = TSP.readFromFileScanner("tsp_17.txt");
+        tsp = TSP.readFromFileScanner(Paths.get("newTSP", "berlin52.txt").toString());
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 
         int startingCity = 0;
@@ -90,7 +91,7 @@ static void measurementsQualitySA(){
 
     static void measurementsQualityRandom(String fileName) throws IOException {
         TSP tsp;
-        tsp = TSP.readFromFileScanner("tsp_17.txt");
+        tsp = TSP.readFromFileScanner(Paths.get("oldTSP", "tsp_17.txt").toString());
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 
         int startingCity = 0;
@@ -107,7 +108,7 @@ static void measurementsQualitySA(){
 
     static void measurementsQualityGA(String fileName) throws IOException {
         TSP tsp;
-        tsp = TSP.readFromFileScanner("tsp_17.txt");
+        tsp = TSP.readFromFileScanner(Paths.get("newTSP", "berlin52.txt").toString());
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 
         SelectionType selectionType = SelectionType.TOURNAMENT;
@@ -118,9 +119,9 @@ static void measurementsQualitySA(){
         float crossoverRate = 0.7F;
         int tournamentSize = 5;
         MutationType mutationType = MutationType.INVERSE;
-        CrossoverType crossoverType = CrossoverType.CX;
-        InitialSolution initialSolution = InitialSolution.GREEDY;
-        for (int i = 0; i < 10; i++) {
+        CrossoverType crossoverType = CrossoverType.OX;
+        InitialSolution initialSolution = InitialSolution.RANDOM;
+        for (int i = 0; i < 2; i++) {
             SalesmanGenome solution = tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize,
                     maxIterations, mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, initialSolution);
             System.out.println(solution);

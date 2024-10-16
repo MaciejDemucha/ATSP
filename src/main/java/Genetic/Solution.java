@@ -1,5 +1,9 @@
 package Genetic;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Solution {
@@ -290,7 +294,8 @@ public class Solution {
             float crossover = random.nextFloat();
 
             List<SalesmanGenome> parents = pickNRandomElements(population, 2);
-            List<SalesmanGenome> children = new ArrayList<>(parents);
+            assert parents != null;
+            List<SalesmanGenome> children = null;
 
             if(crossover < crossoverRate) {
                 if(crossoverType == CrossoverType.ONEPOINT)
@@ -300,7 +305,15 @@ public class Solution {
                 else if(crossoverType == CrossoverType.CX)
                     children = crossoverCX(parents);
             }
+            else {
+                children = new ArrayList<>(){
+                    {
+                        add(parents.get(0));
+                    }
+                };
+            }
 
+            assert children != null;
             for (SalesmanGenome child: children) {
                 int index = children.indexOf(child);
                 if (mutationType == MutationType.SWAP){
@@ -320,6 +333,11 @@ public class Solution {
         return generation;
     }
 
+    public SalesmanGenome getInitialSolution(InitialSolution initialSolution) {
+
+        return new SalesmanGenome(numberOfCities, travelPrices, startingCity, initialSolution);
+    }
+
     public void printGeneration(List<SalesmanGenome> generation ){
         for( SalesmanGenome genome : generation){
             System.out.println(genome);
@@ -327,19 +345,52 @@ public class Solution {
     }
 
     public SalesmanGenome optimize() {
+        String filePath = generateUniqueFilePath();
         List<SalesmanGenome> population = initialPopulation();
         SalesmanGenome globalBestGenome = population.get(0);
+        SalesmanGenome worstGenome;
+        int sum = 0;
         for (int i = 0; i < maxIterations; i++) {
             List<SalesmanGenome> selected = selection(population);
             population = createGeneration(selected);
             globalBestGenome = Collections.min(population);
+            worstGenome = Collections.max(population);
+            for (SalesmanGenome genome: population) {
+                sum += genome.fitness;
+            }
+            int avgPopFitness = sum / population.size();
+            sum = 0;
+            logger(filePath, i, globalBestGenome.fitness, worstGenome.fitness, avgPopFitness);
         }
         return globalBestGenome;
     }
 
-    public SalesmanGenome getInitialSolution(InitialSolution initialSolution) {
+    private void logger(String filePath, int numOfIteration, int best, int worst, int avg) {
+        BufferedWriter writer = null;
+        try {
+            // Open the file in append mode
+            writer = new BufferedWriter(new FileWriter(filePath, true));
 
-        return new SalesmanGenome(numberOfCities, travelPrices, startingCity, initialSolution);
+            // Write the data in CSV format
+            writer.write(numOfIteration + ";" + best + ";" + avg + ";" + worst);
+            writer.newLine(); // Move to the next line
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close(); // Close the writer to free resources
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
+    private String generateUniqueFilePath() {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        Date date = new Date();
+        return "output/logs_" + formatter.format(date) + ".csv";
+    }
 }
