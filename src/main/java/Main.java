@@ -9,8 +9,31 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws IOException {
         //menu();
-        measurementsQualityGA(Paths.get("output", "outputGA.txt").toString());
-       // measurementsQualityGreedy(Paths.get("output", "outputGreedy.txt").toString());
+
+        CrossoverType ct = CrossoverType.OX;
+        MutationType mt = MutationType.INVERSE;
+        SelectionType st = SelectionType.TOURNAMENT;
+        InitialSolution initialSolution = InitialSolution.RANDOM;
+
+        measurementsQualityGA(Paths.get("output", "outputGA1.txt").toString(), 100, 100, 0.1F, 0.7F, 5, st, mt, ct, initialSolution);
+        measurementsQualityGA(Paths.get("output", "outputGA2.txt").toString(), 100, 100, 0.2F, 0.7F, 5, st, mt, ct, initialSolution);
+        measurementsQualityGA(Paths.get("output", "outputGA3.txt").toString(), 100, 100, 0.3F, 0.7F, 5, st, mt, ct, initialSolution);
+        measurementsQualityGA(Paths.get("output", "outputGA4.txt").toString(), 100, 100, 0.1F, 0.8F, 5, st, mt, ct, initialSolution);
+        measurementsQualityGA(Paths.get("output", "outputGA5.txt").toString(), 100, 100, 0.1F, 0.9F, 5, st, mt, ct, initialSolution);
+
+        measurementsQualityGA(Paths.get("output", "outputGA6.txt").toString(), 250, 100, 0.1F, 0.7F, 5, st, mt, ct, initialSolution);
+        measurementsQualityGA(Paths.get("output", "outputGA7.txt").toString(), 250, 100, 0.2F, 0.7F, 5, st, mt, ct, initialSolution);
+        measurementsQualityGA(Paths.get("output", "outputGA8.txt").toString(), 250, 100, 0.3F, 0.7F, 5, st, mt, ct, initialSolution);
+        measurementsQualityGA(Paths.get("output", "outputGA9.txt").toString(), 250, 100, 0.1F, 0.8F, 5, st, mt, ct, initialSolution);
+        measurementsQualityGA(Paths.get("output", "outputGA10.txt").toString(), 250, 100, 0.1F, 0.9F, 5, st, mt, ct, initialSolution);
+
+        measurementsQualityGA(Paths.get("output", "outputGA11.txt").toString(), 500, 100, 0.1F, 0.7F, 5, st, mt, ct, initialSolution);
+        measurementsQualityGA(Paths.get("output", "outputGA12.txt").toString(), 500, 100, 0.2F, 0.7F, 5, st, mt, ct, initialSolution);
+        measurementsQualityGA(Paths.get("output", "outputGA13.txt").toString(), 500, 100, 0.3F, 0.7F, 5, st, mt, ct, initialSolution);
+        measurementsQualityGA(Paths.get("output", "outputGA14.txt").toString(), 500, 100, 0.1F, 0.8F, 5, st, mt, ct, initialSolution);
+        measurementsQualityGA(Paths.get("output", "outputGA15.txt").toString(), 500, 100, 0.1F, 0.9F, 5, st, mt, ct, initialSolution);
+
+        // measurementsQualityGreedy(Paths.get("output", "outputGreedy.txt").toString());
        // measurementsQualityRandom(Paths.get("output", "outputRandom.txt").toString());
     }
 
@@ -106,22 +129,16 @@ static void measurementsQualitySA(){
 
     }
 
-    static void measurementsQualityGA(String fileName) throws IOException {
+    static void measurementsQualityGA(String fileName, int generationSize, int maxIterations,
+                                      float mutationRate, float crossoverRate, int tournamentSize,
+                                      SelectionType selectionType, MutationType mutationType, CrossoverType crossoverType,
+                                      InitialSolution initialSolution) throws IOException {
         TSP tsp;
         tsp = TSP.readFromFileScanner(Paths.get("newTSP", "berlin52.txt").toString());
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 
-        SelectionType selectionType = SelectionType.TOURNAMENT;
         int startingCity = 0;
-        int generationSize = 1000;
-        int maxIterations = 1000;
-        float mutationRate = 0.1F;
-        float crossoverRate = 0.7F;
-        int tournamentSize = 5;
-        MutationType mutationType = MutationType.INVERSE;
-        CrossoverType crossoverType = CrossoverType.OX;
-        InitialSolution initialSolution = InitialSolution.RANDOM;
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 10; i++) {
             SalesmanGenome solution = tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize,
                     maxIterations, mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, initialSolution);
             System.out.println(solution);

@@ -589,7 +589,7 @@ public class TSP {
         return geneticAlgoritm.optimize();
     }
 
-    //apart from starting cities all parameters are not relevant
+    //do eksperymentow z greedy i random
     public SalesmanGenome initialSolutionSA(int startingCity, InitialSolution initialSolution){
         int numberOfCities = distances.length;
         Solution geneticAlgoritm = new Solution(numberOfCities, SelectionType.TOURNAMENT, distances, startingCity, 1000,

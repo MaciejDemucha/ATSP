@@ -43,7 +43,7 @@ public class Solution {
     }
 
     public List<SalesmanGenome> initialPopulation(){
-        List<SalesmanGenome> population = new ArrayList<>();
+        List<SalesmanGenome> population = new LinkedList<>();
         for(int i=0; i < generationSize; i++){
             population.add(new SalesmanGenome(numberOfCities, travelPrices, startingCity, initialSolution));
         }
@@ -51,7 +51,7 @@ public class Solution {
     }
 
     public List<SalesmanGenome> selection(List<SalesmanGenome> population) {
-        List<SalesmanGenome> selected = new ArrayList<>();
+        List<SalesmanGenome> selected = new LinkedList<>();
         for (int i=0; i < population.size(); i++) {
             if (selectionType == SelectionType.ROULETTE) {
                 selected.add(rouletteSelection(population));
@@ -132,7 +132,7 @@ public class Solution {
             child.add(i, sublist.remove(0));
         }
 
-        List<SalesmanGenome> childList = new ArrayList<>();
+        List<SalesmanGenome> childList = new LinkedList<>();
         childList.add(new SalesmanGenome(child, numberOfCities, travelPrices, startingCity));
 
         return childList;
@@ -166,7 +166,7 @@ public class Solution {
             child.set(child.indexOf(-1), city);
         }
 
-        List<SalesmanGenome> childList = new ArrayList<>();
+        List<SalesmanGenome> childList = new LinkedList<>();
         childList.add(new SalesmanGenome(child, numberOfCities, travelPrices, startingCity));
 
         return childList;
@@ -177,12 +177,12 @@ public class Solution {
         Random random = new Random();
 
         int breakpoint = random.nextInt(genomeSize);
-        List<SalesmanGenome> children = new ArrayList<>();
+        List<SalesmanGenome> children = new LinkedList<>();
 
         // Copy parental genomes - we copy so we wouldn't modify in case they were
         // chosen to participate in crossover multiple times
-        List<Integer> parent1Genome = new ArrayList<>(parents.get(0).getCitySequence());
-        List<Integer> parent2Genome = new ArrayList<>(parents.get(1).getCitySequence());
+        List<Integer> parent1Genome = new LinkedList<>(parents.get(0).getCitySequence());
+        List<Integer> parent2Genome = new LinkedList<>(parents.get(1).getCitySequence());
 
         // Creating child 1
         for (int i = 0; i < breakpoint; i++) {
@@ -219,7 +219,7 @@ public class Solution {
     }
 
     public static List<Integer> reverseArray(List<Integer> startArray, int start, int n) {
-        List destArray = new ArrayList();
+        List destArray = new LinkedList();
 
         for (int i = start; i <= n; i++) {
             destArray.add(startArray.get(i));
@@ -230,7 +230,7 @@ public class Solution {
     }
 
     public static List<Integer> shuffleArray(List<Integer> startArray, int start, int n) {
-        List destArray = new ArrayList();
+        List destArray = new LinkedList();
 
         for (int i = start; i <= n; i++) {
             destArray.add(startArray.get(i));
@@ -287,7 +287,7 @@ public class Solution {
     }
 
     public List<SalesmanGenome> createGeneration(List<SalesmanGenome> population) {
-        List<SalesmanGenome> generation = new ArrayList<>();
+        List<SalesmanGenome> generation = new LinkedList<>();
         int currentGenerationSize = 0;
         Random random = new Random();
         while (currentGenerationSize < generationSize) {
@@ -306,7 +306,7 @@ public class Solution {
                     children = crossoverCX(parents);
             }
             else {
-                children = new ArrayList<>(){
+                children = new LinkedList<>(){
                     {
                         add(parents.get(0));
                     }
@@ -391,6 +391,6 @@ public class Solution {
     private String generateUniqueFilePath() {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
         Date date = new Date();
-        return "output/logs_" + formatter.format(date) + ".csv";
+        return "output/logs/logs_" + formatter.format(date) + ".csv";
     }
 }
