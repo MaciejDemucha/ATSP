@@ -9,98 +9,63 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws IOException {
         //menu();
+        String input = Paths.get("newTSP", "berlin52.txt").toString();
+        String outputFolder = "outputInverse";
 
         CrossoverType ct = CrossoverType.OX;
         MutationType mt = MutationType.INVERSE;
         SelectionType st = SelectionType.TOURNAMENT;
         InitialSolution initialSolution = InitialSolution.RANDOM;
 
-        measurementsQualityGA(Paths.get("output", "outputGA1.txt").toString(), 100, 100, 0.1F, 0.7F, 5, st, mt, ct, initialSolution);
-        measurementsQualityGA(Paths.get("output", "outputGA2.txt").toString(), 100, 100, 0.2F, 0.7F, 5, st, mt, ct, initialSolution);
-        measurementsQualityGA(Paths.get("output", "outputGA3.txt").toString(), 100, 100, 0.3F, 0.7F, 5, st, mt, ct, initialSolution);
-        measurementsQualityGA(Paths.get("output", "outputGA4.txt").toString(), 100, 100, 0.1F, 0.8F, 5, st, mt, ct, initialSolution);
-        measurementsQualityGA(Paths.get("output", "outputGA5.txt").toString(), 100, 100, 0.1F, 0.9F, 5, st, mt, ct, initialSolution);
+        int durationInSeconds = 30;
 
-        measurementsQualityGA(Paths.get("output", "outputGA6.txt").toString(), 250, 100, 0.1F, 0.7F, 5, st, mt, ct, initialSolution);
-        measurementsQualityGA(Paths.get("output", "outputGA7.txt").toString(), 250, 100, 0.2F, 0.7F, 5, st, mt, ct, initialSolution);
-        measurementsQualityGA(Paths.get("output", "outputGA8.txt").toString(), 250, 100, 0.3F, 0.7F, 5, st, mt, ct, initialSolution);
-        measurementsQualityGA(Paths.get("output", "outputGA9.txt").toString(), 250, 100, 0.1F, 0.8F, 5, st, mt, ct, initialSolution);
-        measurementsQualityGA(Paths.get("output", "outputGA10.txt").toString(), 250, 100, 0.1F, 0.9F, 5, st, mt, ct, initialSolution);
+        int pop_size = 2000;
+        int gen = 1500;
+        measurementsQualityGA(input, Paths.get(outputFolder, "outputGA11.txt").toString(), pop_size, gen,durationInSeconds, 0.1F, 0.7F, 2, st, mt, ct, initialSolution);
+        st = SelectionType.ROULETTE;
+        measurementsQualityGA(input, Paths.get(outputFolder, "outputGA11.txt").toString(), pop_size, gen,durationInSeconds, 0.1F, 0.7F, 2, st, mt, ct, initialSolution);
+        //measurementsQualityGA(input, Paths.get(outputFolder, "outputGA12.txt").toString(), pop_size, gen,durationInSeconds, 0.2F, 0.7F, 2, st, mt, ct, initialSolution);
+        //measurementsQualityGA(input, Paths.get(outputFolder, "outputGA13.txt").toString(), pop_size, gen,durationInSeconds, 0.3F, 0.7F, 2, st, mt, ct, initialSolution);
+        //measurementsQualityGA(input, Paths.get(outputFolder, "outputGA14.txt").toString(), pop_size, gen, durationInSeconds, 0.1F, 0.8F, 2, st, mt, ct, initialSolution);
+        //measurementsQualityGA(input, Paths.get(outputFolder, "outputGA15.txt").toString(), pop_size, gen,durationInSeconds, 0.1F, 0.9F, 2, st, mt, ct, initialSolution);
 
-        measurementsQualityGA(Paths.get("output", "outputGA11.txt").toString(), 500, 100, 0.1F, 0.7F, 5, st, mt, ct, initialSolution);
-        measurementsQualityGA(Paths.get("output", "outputGA12.txt").toString(), 500, 100, 0.2F, 0.7F, 5, st, mt, ct, initialSolution);
-        measurementsQualityGA(Paths.get("output", "outputGA13.txt").toString(), 500, 100, 0.3F, 0.7F, 5, st, mt, ct, initialSolution);
-        measurementsQualityGA(Paths.get("output", "outputGA14.txt").toString(), 500, 100, 0.1F, 0.8F, 5, st, mt, ct, initialSolution);
-        measurementsQualityGA(Paths.get("output", "outputGA15.txt").toString(), 500, 100, 0.1F, 0.9F, 5, st, mt, ct, initialSolution);
+       /* input = Paths.get("newTSP", "berlin52.txt").toString();
+        measurementsQualityGA(input, Paths.get(outputFolder, "outputGA11.txt").toString(), pop_size, gen,durationInSeconds, 0.1F, 0.7F, 2, st, mt, ct, initialSolution);
+        input = Paths.get("newTSP", "ali535.txt").toString();
+        measurementsQualityGA(input, Paths.get(outputFolder, "outputGA11.txt").toString(), pop_size, gen,durationInSeconds, 0.1F, 0.7F, 2, st, mt, ct, initialSolution);
+        input = Paths.get("newTSP", "kroA100.txt").toString();
+        measurementsQualityGA(input, Paths.get(outputFolder, "outputGA12.txt").toString(), pop_size, gen,durationInSeconds, 0.1F, 0.7F, 2, st, mt, ct, initialSolution);
+        input = Paths.get("newTSP", "kroA150.txt").toString();
+        measurementsQualityGA(input, Paths.get(outputFolder, "outputGA13.txt").toString(), pop_size, gen,durationInSeconds, 0.1F, 0.7F, 2, st, mt, ct, initialSolution);
+        input = Paths.get("newTSP", "kroA200.txt").toString();
+        measurementsQualityGA(input, Paths.get(outputFolder, "outputGA14.txt").toString(), pop_size, gen,durationInSeconds, 0.1F, 0.7F, 2, st, mt, ct, initialSolution);
+        input = Paths.get("newTSP", "fl417.txt").toString();
+        measurementsQualityGA(input, Paths.get(outputFolder, "outputGA15.txt").toString(), pop_size, gen,durationInSeconds, 0.1F, 0.7F, 2, st, mt, ct, initialSolution);*/
 
-        // measurementsQualityGreedy(Paths.get("output", "outputGreedy.txt").toString());
-       // measurementsQualityRandom(Paths.get("output", "outputRandom.txt").toString());
+        outputFolder = "outputSwap";
+        mt = MutationType.SWAP;
+
+        pop_size = 2000;
+        gen = 500;
+        //measurementsQualityGA(input, Paths.get(outputFolder, "outputGA11.txt").toString(), pop_size, gen,durationInSeconds, 0.01F, 0.7F, 2, st, mt, ct, initialSolution);
+        //measurementsQualityGA(input, Paths.get(outputFolder, "outputGA12.txt").toString(), pop_size, gen, durationInSeconds,0.02F, 0.7F, 2, st, mt, ct, initialSolution);
+        //measurementsQualityGA(input, Paths.get(outputFolder, "outputGA13.txt").toString(), pop_size, gen,durationInSeconds, 0.05F, 0.7F, 2, st, mt, ct, initialSolution);
+        //measurementsQualityGA(input, Paths.get(outputFolder, "outputGA14.txt").toString(), pop_size, gen,durationInSeconds, 0.01F, 0.8F, 2, st, mt, ct, initialSolution);
+        //measurementsQualityGA(input, Paths.get(outputFolder, "outputGA15.txt").toString(), pop_size, gen,durationInSeconds, 0.01F, 0.9F, 2, st, mt, ct, initialSolution);
+
+
     }
 
-static void measurementsQualitySA(){
-    TSP tsp;
-    ResultSA result;
-    tsp = TSP.readFromFileScanner("tsp_170.txt");
-    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),1000, 0.001, 0.95, 1);
-    System.out.println("Final solution distance: " + result.getCost());
-    System.out.println("Tour: " + result.getPath());
-    System.out.println("*********************************************************************************");
-    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),1000, 0.001, 0.99, 1);
-    System.out.println("Final solution distance: " + result.getCost());
-    System.out.println("Tour: " + result.getPath());
-    System.out.println("*********************************************************************************");
-    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),1000, 0.001, 0.999, 1);
-    System.out.println("Final solution distance: " + result.getCost());
-    System.out.println("Tour: " + result.getPath());
-    System.out.println("*********************************************************************************");
-    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),2000, 0.001, 0.95, 1);
-    System.out.println("Final solution distance: " + result.getCost());
-    System.out.println("Tour: " + result.getPath());
-    System.out.println("*********************************************************************************");
-    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),2000, 0.001, 0.99, 1);
-    System.out.println("Final solution distance: " + result.getCost());
-    System.out.println("Tour: " + result.getPath());
-    System.out.println("*********************************************************************************");
-    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),2000, 0.001, 0.999, 1);
-    System.out.println("Final solution distance: " + result.getCost());
-    System.out.println("Tour: " + result.getPath());
-    System.out.println("*********************************************************************************");
-    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),5000, 0.001, 0.95, 1);
-    System.out.println("Final solution distance: " + result.getCost());
-    System.out.println("Tour: " + result.getPath());
-    System.out.println("*********************************************************************************");
-    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),5000, 0.001, 0.99, 1);
-    System.out.println("Final solution distance: " + result.getCost());
-    System.out.println("Tour: " + result.getPath());
-    System.out.println("*********************************************************************************");
-    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),5000, 0.001, 0.999, 1);
-    System.out.println("Final solution distance: " + result.getCost());
-    System.out.println("Tour: " + result.getPath());
-    System.out.println("*********************************************************************************");
-    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),10000, 0.001, 0.95, 1);
-    System.out.println("Final solution distance: " + result.getCost());
-    System.out.println("Tour: " + result.getPath());
-    System.out.println("*********************************************************************************");
-    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),10000, 0.001, 0.99, 1);
-    System.out.println("Final solution distance: " + result.getCost());
-    System.out.println("Tour: " + result.getPath());
-    System.out.println("*********************************************************************************");
-    result = tsp.simulatedAnnealing(tsp.getRandomSolution(),10000, 0.001, 0.999, 1);
-    System.out.println("Final solution distance: " + result.getCost());
-    System.out.println("Tour: " + result.getPath());
-    System.out.println("*********************************************************************************");
-}
-
-    static void measurementsQualityGreedy(String fileName) throws IOException {
+    static void measurementsQualityGreedy(String input, String fileName) throws IOException {
         TSP tsp;
-        tsp = TSP.readFromFileScanner(Paths.get("newTSP", "berlin52.txt").toString());
+        tsp = TSP.readFromFileScanner(input);
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 
         int startingCity = 0;
         while (true) {
             SalesmanGenome solution = tsp.initialSolutionSA(startingCity, InitialSolution.GREEDY);
-            System.out.println(solution);
-            System.out.println("*********************************************************************************");
+            //System.out.println(solution);
+            //System.out.println("*********************************************************************************");
             writer.write(solution.getFitness() + "\n");
 
             startingCity++;
@@ -112,9 +77,9 @@ static void measurementsQualitySA(){
 
     }
 
-    static void measurementsQualityRandom(String fileName) throws IOException {
+    static void measurementsQualityRandom(String input, String fileName) throws IOException {
         TSP tsp;
-        tsp = TSP.readFromFileScanner(Paths.get("oldTSP", "tsp_17.txt").toString());
+        tsp = TSP.readFromFileScanner(input);
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 
         int startingCity = 0;
@@ -129,41 +94,25 @@ static void measurementsQualitySA(){
 
     }
 
-    static void measurementsQualityGA(String fileName, int generationSize, int maxIterations,
+    static void measurementsQualityGA(String input, String fileName, int generationSize, int maxIterations, int durationInSeconds,
                                       float mutationRate, float crossoverRate, int tournamentSize,
                                       SelectionType selectionType, MutationType mutationType, CrossoverType crossoverType,
                                       InitialSolution initialSolution) throws IOException {
         TSP tsp;
-        tsp = TSP.readFromFileScanner(Paths.get("newTSP", "berlin52.txt").toString());
+        tsp = TSP.readFromFileScanner(input);
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 
         int startingCity = 0;
         for (int i = 0; i < 10; i++) {
             SalesmanGenome solution = tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize,
-                    maxIterations, mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, initialSolution);
-            System.out.println(solution);
-            System.out.println("*********************************************************************************");
+                    maxIterations, durationInSeconds, mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, initialSolution);
+            //System.out.println(solution);
+            //System.out.println("*********************************************************************************");
             writer.write(solution.getFitness() + "\n");
         }
 
         writer.close();
 
-    }
-
-    static void measurementsTime(int size){
-        TSP tsp;
-        System.out.println("Size: " + size);
-        long start = System.nanoTime();
-
-        for(int i = 0; i < 100; i++){
-            tsp = TSP.createRandomMatrix(size);
-            tsp.performSAMeasurements(40000, 1, 0.001, 2);
-        }
-
-        long finish = System.nanoTime();
-
-        long timeElapsed = finish - start;
-        System.out.println("Time: " + (timeElapsed / 1000000.0)/100.0 + " ms");
     }
 
     static void menu() {
@@ -249,11 +198,9 @@ static void measurementsQualitySA(){
                             System.out.println("Wybierz metodę mutacji: ");
                             System.out.println("Zamiana 2 wartości: 1");
                             System.out.println("Inversion mutation: 2");
-                            System.out.println("Scramble mutation: 3");
                             choice = Integer.parseInt(scanner.nextLine());
                             if(choice == 1)  mutationType = MutationType.SWAP;
-                            else if(choice == 2) mutationType = MutationType.INVERSE;
-                            else mutationType = MutationType.SCRAMBLE;
+                            else mutationType = MutationType.INVERSE;
 
                             System.out.println("Wybierz metodę krzyżowania: ");
                             System.out.println("CX: 1");
@@ -261,8 +208,7 @@ static void measurementsQualitySA(){
                             System.out.println("One-point: 3");
                             choice = Integer.parseInt(scanner.nextLine());
                             if(choice == 1)  crossoverType = CrossoverType.CX;
-                            else if(choice == 2)  crossoverType = CrossoverType.OX;
-                            else crossoverType = CrossoverType.ONEPOINT;
+                            else crossoverType = CrossoverType.OX;
 
                             System.out.println("Wybierz metodę wyznaczania pierwszego rozwiązania: ");
                             System.out.println("losowa: 1");
@@ -283,7 +229,7 @@ static void measurementsQualitySA(){
                             int tournamentSize = Integer.parseInt(scanner.nextLine());
 
                             System.out.println(tsp.geneticAlgoritmSolution(selectionType, startingCity, generationSize,
-                                    maxIterations, mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, initialSolution));
+                                    maxIterations, 20, mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, initialSolution));
                         }
 
                         else

@@ -580,11 +580,11 @@ public class TSP {
     }
 
     public SalesmanGenome geneticAlgoritmSolution(SelectionType selectionType, int startingCity, int generationSize,
-                                                  int maxIterations, float mutationRate, float crossoverRate,
+                                                  int maxIterations,int durationInSeconds, float mutationRate, float crossoverRate,
                                                   int tournamentSize, MutationType mutationType, CrossoverType crossoverType, InitialSolution initialSolution){
         int numberOfCities = distances.length;
         Solution geneticAlgoritm = new Solution(numberOfCities, selectionType, distances, startingCity, generationSize,
-                maxIterations,  mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, initialSolution);
+                maxIterations, durationInSeconds ,mutationRate, crossoverRate, tournamentSize, mutationType, crossoverType, initialSolution);
 
         return geneticAlgoritm.optimize();
     }
@@ -593,7 +593,7 @@ public class TSP {
     public SalesmanGenome initialSolutionSA(int startingCity, InitialSolution initialSolution){
         int numberOfCities = distances.length;
         Solution geneticAlgoritm = new Solution(numberOfCities, SelectionType.TOURNAMENT, distances, startingCity, 1000,
-                1000,  0.1F, 0.1F, 5, MutationType.INVERSE, CrossoverType.OX, initialSolution);
+                1000, 5, 0.1F, 0.1F, 5, MutationType.INVERSE, CrossoverType.OX, initialSolution);
 
         return geneticAlgoritm.getInitialSolution(initialSolution);
     }

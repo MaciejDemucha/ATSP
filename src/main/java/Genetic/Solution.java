@@ -11,6 +11,10 @@ public class Solution {
     private int genomeSize;
     private int numberOfCities;
     private int maxIterations;
+
+    private int durationInSeconds;
+
+    private int calcFitnessCount;
     private float mutationRate;
     private float crossoverRate;
     private int[][] travelPrices;
@@ -24,7 +28,7 @@ public class Solution {
     private InitialSolution initialSolution;
 
     public Solution(int numberOfCities, SelectionType selectionType, int[][] travelPrices, int startingCity,
-                    int generationSize, int maxIterations, float mutationRate,
+                    int generationSize, int maxIterations, int durationInSeconds, float mutationRate,
                     float crossoverRate, int tournamentSize, MutationType mutationType, CrossoverType crossoverType, InitialSolution initialSolution){
         this.numberOfCities = numberOfCities;
         this.genomeSize = numberOfCities-1;
@@ -36,6 +40,7 @@ public class Solution {
 
         this.generationSize = generationSize;
         this.maxIterations = maxIterations;
+        this.durationInSeconds = durationInSeconds;
         this.mutationRate = mutationRate;
         this.crossoverRate = crossoverRate;
         this.tournamentSize = tournamentSize;
@@ -65,16 +70,12 @@ public class Solution {
     }
 
     public SalesmanGenome rouletteSelection(List<SalesmanGenome> population) {
-        int totalFitness = population.stream().map(SalesmanGenome::getFitness).mapToInt(Integer::intValue).sum();
+        long totalFitness = population.stream().map(SalesmanGenome::getFitness).mapToLong(Long::longValue).sum();
 
-        // We pick a random value - a point on our roulette wheel
         Random random = new Random();
-        int selectedValue = random.nextInt(totalFitness);
+        //long selectedValue = random.nextLong(0L, totalFitness);
+        long selectedValue = (long)(random.nextDouble()*totalFitness);
 
-        // Because we're doing minimization, we need to use reciprocal
-        // value so the probability of selecting a genome would be
-        // inversely proportional to its fitness - the smaller the fitness
-        // the higher the probability
         float recValue = (float) 1/selectedValue;
 
         // We add up values until we reach out recValue, and we pick the
@@ -93,8 +94,6 @@ public class Solution {
         return population.get(selectRandom);
     }
 
-    // A helper function to pick n random elements from the population
-// so we could enter them into a tournament
     public static <E> List<E> pickNRandomElements(List<E> list, int n) {
         Random r = new Random();
         int length = list.size();
@@ -107,8 +106,6 @@ public class Solution {
         return list.subList(length - n, length);
     }
 
-    // A simple implementation of the deterministic tournament - the best genome
-// always wins
     public SalesmanGenome tournamentSelection(List<SalesmanGenome> population) {
         List<SalesmanGenome> selected = pickNRandomElements(population, tournamentSize);
         return Collections.min(selected);
@@ -172,38 +169,8 @@ public class Solution {
         return childList;
     }
 
-    public List<SalesmanGenome> crossover(List<SalesmanGenome> parents) {
-        // Housekeeping
-        Random random = new Random();
 
-        int breakpoint = random.nextInt(genomeSize);
-        List<SalesmanGenome> children = new LinkedList<>();
-
-        // Copy parental genomes - we copy so we wouldn't modify in case they were
-        // chosen to participate in crossover multiple times
-        List<Integer> parent1Genome = new LinkedList<>(parents.get(0).getCitySequence());
-        List<Integer> parent2Genome = new LinkedList<>(parents.get(1).getCitySequence());
-
-        // Creating child 1
-        for (int i = 0; i < breakpoint; i++) {
-            int newVal;
-            newVal = parent2Genome.get(i);
-            Collections.swap(parent1Genome, parent1Genome.indexOf(newVal), i);
-        }
-        children.add(new SalesmanGenome(parent1Genome, numberOfCities, travelPrices, startingCity));
-        parent1Genome = parents.get(0).getCitySequence(); // Reseting the edited parent
-
-        // Creating child 2
-        for (int i = breakpoint; i < genomeSize; i++) {
-            int newVal = parent1Genome.get(i);
-            Collections.swap(parent2Genome, parent2Genome.indexOf(newVal), i);
-        }
-        children.add(new SalesmanGenome(parent2Genome, numberOfCities, travelPrices, startingCity));
-
-        return children;
-    }
-
-    public SalesmanGenome mutate(SalesmanGenome salesman) {
+    public SalesmanGenome swapMutation(SalesmanGenome salesman) {
         Random random = new Random();
         float mutate = random.nextFloat();
         if (mutate < mutationRate) {
@@ -212,32 +179,6 @@ public class Solution {
             return new SalesmanGenome(genome, numberOfCities, travelPrices, startingCity);
         }
         return salesman;
-    }
-
-    public static int randInt(int min, int max) {
-        return (int)Math.floor(Math.random()*(max-min+1)+min);
-    }
-
-    public static List<Integer> reverseArray(List<Integer> startArray, int start, int n) {
-        List destArray = new LinkedList();
-
-        for (int i = start; i <= n; i++) {
-            destArray.add(startArray.get(i));
-        }
-        Collections.reverse(destArray);
-
-        return destArray;
-    }
-
-    public static List<Integer> shuffleArray(List<Integer> startArray, int start, int n) {
-        List destArray = new LinkedList();
-
-        for (int i = start; i <= n; i++) {
-            destArray.add(startArray.get(i));
-        }
-        Collections.shuffle(destArray);
-
-        return destArray;
     }
 
     public SalesmanGenome inversionMutation(SalesmanGenome salesman) {
@@ -263,29 +204,6 @@ public class Solution {
         return salesman;
     }
 
-    public SalesmanGenome scrambleMutation(SalesmanGenome salesman) {
-        Random random = new Random();
-        float mutate = random.nextFloat();
-        if (mutate < mutationRate) {
-            List<Integer> genome = salesman.getCitySequence();
-
-            int start = randInt(0, genome.size()-2);
-            int end = randInt(start+1, genome.size()-2);
-
-
-            List reversedPart = shuffleArray(genome, start, end);
-            int indexOfReversedPart = 0;
-
-            for(int i = start; i <= end; i++){
-                genome.set(i, (Integer) reversedPart.get(indexOfReversedPart));
-                indexOfReversedPart++;
-            }
-
-            return new SalesmanGenome(genome, numberOfCities, travelPrices, startingCity);
-        }
-        return salesman;
-    }
-
     public List<SalesmanGenome> createGeneration(List<SalesmanGenome> population) {
         List<SalesmanGenome> generation = new LinkedList<>();
         int currentGenerationSize = 0;
@@ -298,9 +216,7 @@ public class Solution {
             List<SalesmanGenome> children = null;
 
             if(crossover < crossoverRate) {
-                if(crossoverType == CrossoverType.ONEPOINT)
-                    children = crossover(parents);
-                else if(crossoverType == CrossoverType.OX)
+                if(crossoverType == CrossoverType.OX)
                     children = crossoverOX(parents);
                 else if(crossoverType == CrossoverType.CX)
                     children = crossoverCX(parents);
@@ -317,13 +233,10 @@ public class Solution {
             for (SalesmanGenome child: children) {
                 int index = children.indexOf(child);
                 if (mutationType == MutationType.SWAP){
-                    children.set(index, mutate(children.get(index)));
+                    children.set(index, swapMutation(children.get(index)));
                 }
                 else if (mutationType == MutationType.INVERSE) {
                     children.set(index, inversionMutation(children.get(index)));
-                }
-                else{
-                    children.set(index, scrambleMutation(children.get(index)));
                 }
             }
 
@@ -338,49 +251,47 @@ public class Solution {
         return new SalesmanGenome(numberOfCities, travelPrices, startingCity, initialSolution);
     }
 
-    public void printGeneration(List<SalesmanGenome> generation ){
-        for( SalesmanGenome genome : generation){
-            System.out.println(genome);
-        }
-    }
-
     public SalesmanGenome optimize() {
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime + this.durationInSeconds * 1000L;
+
         String filePath = generateUniqueFilePath();
         List<SalesmanGenome> population = initialPopulation();
         SalesmanGenome globalBestGenome = population.get(0);
         SalesmanGenome worstGenome;
         int sum = 0;
-        for (int i = 0; i < maxIterations; i++) {
+        for (int i = 0; System.currentTimeMillis() < endTime; i++) {
             List<SalesmanGenome> selected = selection(population);
             population = createGeneration(selected);
-            globalBestGenome = Collections.min(population);
+
+            if(globalBestGenome.getFitness() > Collections.min(population).getFitness())
+                globalBestGenome = Collections.min(population);
+
             worstGenome = Collections.max(population);
             for (SalesmanGenome genome: population) {
                 sum += genome.fitness;
             }
-            int avgPopFitness = sum / population.size();
+            long avgPopFitness = sum / population.size();
             sum = 0;
             logger(filePath, i, globalBestGenome.fitness, worstGenome.fitness, avgPopFitness);
         }
         return globalBestGenome;
     }
 
-    private void logger(String filePath, int numOfIteration, int best, int worst, int avg) {
+    private void logger(String filePath, int numOfIteration, long best, long worst, long avg) {
         BufferedWriter writer = null;
         try {
-            // Open the file in append mode
             writer = new BufferedWriter(new FileWriter(filePath, true));
 
-            // Write the data in CSV format
             writer.write(numOfIteration + ";" + best + ";" + avg + ";" + worst);
-            writer.newLine(); // Move to the next line
+            writer.newLine();
 
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
                 if (writer != null) {
-                    writer.close(); // Close the writer to free resources
+                    writer.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -392,5 +303,20 @@ public class Solution {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
         Date date = new Date();
         return "output/logs/logs_" + formatter.format(date) + ".csv";
+    }
+
+    public static int randInt(int min, int max) {
+        return (int)Math.floor(Math.random()*(max-min+1)+min);
+    }
+
+    public static List<Integer> reverseArray(List<Integer> startArray, int start, int n) {
+        List destArray = new LinkedList();
+
+        for (int i = start; i <= n; i++) {
+            destArray.add(startArray.get(i));
+        }
+        Collections.reverse(destArray);
+
+        return destArray;
     }
 }
